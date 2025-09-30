@@ -15,6 +15,7 @@ import Schedule from "./pages/Schedule";
 import Catalog from "./pages/Catalog";
 import Profile from "./pages/Profile";
 import Achievements from "./pages/Achievements";
+import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/achievements" element={<Achievements />} />
+          <Route path="/recommendations" element={<Recommendations />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -57,7 +57,7 @@ const getUserId = () => {
 };
 
 export default function Index() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
   const [popularManhwa, setPopularManhwa] = useState<Manhwa[]>([]);
   const [currentlyReading, setCurrentlyReading] = useState<Manhwa[]>([]);
@@ -76,7 +76,13 @@ export default function Index() {
       setTheme(savedTheme);
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
       }
+    } else {
+      setTheme('dark');
+      localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.add('dark');
     }
     fetchManhwa();
     fetchBookmarks();
@@ -219,6 +225,15 @@ export default function Index() {
                 onClick={() => navigate('/catalog')}
               >
                 Каталог
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/recommendations')}
+                className="gap-1"
+              >
+                <Icon name="Sparkles" size={14} />
+                Рекомендации
               </Button>
               <Button
                 variant="ghost"
@@ -593,6 +608,56 @@ export default function Index() {
                           <span>{manhwa.views}</span>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-8 border border-primary/20">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-3">
+                    <Icon name="Sparkles" size={28} className="text-primary" />
+                    Рекомендации для вас
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    Персональные подборки на основе ваших предпочтений
+                  </p>
+                </div>
+                <Button onClick={() => navigate('/recommendations')} className="gap-2">
+                  Все рекомендации
+                  <Icon name="ArrowRight" size={16} />
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {currentlyReading.slice(0, 5).map((manhwa) => (
+                  <Card 
+                    key={manhwa.id} 
+                    className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    onClick={() => navigate(`/manhwa/${manhwa.id}`)}
+                  >
+                    <div className="aspect-[2/3] relative overflow-hidden">
+                      <img
+                        src={manhwa.cover}
+                        alt={manhwa.title}
+                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <Badge className="absolute top-2 right-2 bg-green-600 text-white text-xs">
+                        95% совпадение
+                      </Badge>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    
+                    <CardContent className="p-3">
+                      <h3 className="font-semibold text-sm line-clamp-2 mb-1">
+                        {manhwa.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Icon name="Sparkles" size={10} />
+                        Похоже на ваши любимые
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
