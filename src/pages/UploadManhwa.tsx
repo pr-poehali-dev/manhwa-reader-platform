@@ -81,7 +81,7 @@ export default function UploadManhwa() {
     try {
       const payload = {
         ...formData,
-        team_id: formData.team_id ? parseInt(formData.team_id) : null,
+        team_id: formData.team_id && formData.team_id !== 'none' ? parseInt(formData.team_id) : null,
         genre_ids: selectedGenres
       };
 
@@ -259,7 +259,7 @@ export default function UploadManhwa() {
                     <SelectValue placeholder="Выберите команду" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Без команды</SelectItem>
+                    <SelectItem value="none">Без команды</SelectItem>
                     {teams.map((team) => (
                       <SelectItem key={team.id} value={team.id.toString()}>
                         {team.name}

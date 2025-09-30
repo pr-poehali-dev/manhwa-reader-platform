@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import ScrollToTop from '@/components/ScrollToTop';
 import {
   Select,
   SelectContent,
@@ -675,6 +676,7 @@ export default function Catalog() {
           </div>
         </div>
       </main>
+      <ScrollToTop />
     </div>
   );
 }

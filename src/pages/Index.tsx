@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import ScrollToTop from '@/components/ScrollToTop';
 
 interface Manhwa {
   id: number;
@@ -238,43 +239,44 @@ export default function Index() {
               />
             </div>
             
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/upload')}
-              className="gap-2 hidden sm:flex"
-            >
-              <Icon name="Upload" size={16} />
-              Загрузить
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/teams')}
-              className="gap-2 hidden sm:flex"
-            >
-              <Icon name="Users" size={16} />
-              Команды
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/schedule')}
-              className="gap-2 hidden sm:flex"
-            >
-              <Icon name="Calendar" size={16} />
-              Расписание
-            </Button>
+            <div className="hidden lg:flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/upload')}
+                className="gap-2"
+              >
+                <Icon name="Upload" size={16} />
+                Загрузить
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/teams')}
+                className="gap-2"
+              >
+                <Icon name="Users" size={16} />
+                Команды
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/schedule')}
+                className="gap-2"
+              >
+                <Icon name="Calendar" size={16} />
+                Расписание
+              </Button>
+            </div>
             
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
             </Button>
 
-            <Button variant="default" className="gap-2 hidden sm:flex">
-              <Icon name="Heart" size={18} />
-              Донат
+            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+              <Icon name="User" size={20} />
             </Button>
 
             <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
@@ -298,7 +300,7 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="container px-4 py-8 space-y-12">
+      <main className="container px-4 py-8 pb-24 lg:pb-8 space-y-12">
         <section className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6 border">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -660,6 +662,52 @@ export default function Index() {
           </div>
         </div>
       </footer>
+      
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t">
+        <div className="grid grid-cols-5 h-16">
+          <button
+            onClick={() => navigate('/')}
+            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
+          >
+            <Icon name="Home" size={20} />
+            <span className="text-xs">Главная</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/catalog')}
+            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
+          >
+            <Icon name="BookOpen" size={20} />
+            <span className="text-xs">Каталог</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/schedule')}
+            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
+          >
+            <Icon name="Calendar" size={20} />
+            <span className="text-xs">Расписание</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/teams')}
+            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
+          >
+            <Icon name="Users" size={20} />
+            <span className="text-xs">Команды</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/upload')}
+            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
+          >
+            <Icon name="Upload" size={20} />
+            <span className="text-xs">Загрузить</span>
+          </button>
+        </div>
+      </nav>
+      
+      <ScrollToTop />
     </div>
   );
 }
