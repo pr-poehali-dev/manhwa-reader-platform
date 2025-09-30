@@ -86,6 +86,8 @@ export default function Catalog() {
   const [sortBy, setSortBy] = useState('rating');
   const [minRating, setMinRating] = useState(0);
   const [showFilters, setShowFilters] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -197,6 +199,7 @@ export default function Catalog() {
         ? prev.filter(g => g !== genre)
         : [...prev, genre]
     );
+    setCurrentPage(1);
   };
 
   const resetFilters = () => {
@@ -206,6 +209,7 @@ export default function Catalog() {
     setSelectedYear('all');
     setMinRating(0);
     setSearchQuery('');
+    setCurrentPage(1);
   };
 
   const filteredManhwa = manhwaList.filter(m => {
@@ -229,6 +233,44 @@ export default function Catalog() {
       default: return 0;
     }
   });
+
+  const totalPages = Math.ceil(sortedManhwa.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedManhwa = sortedManhwa.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 7;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
 
   if (loading) {
     return (
@@ -438,8 +480,17 @@ export default function Catalog() {
               </div>
             )}
 
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                Показано {startIndex + 1}-{Math.min(endIndex, sortedManhwa.length)} из {sortedManhwa.length}
+              </span>
+              <span>
+                Страница {currentPage} из {totalPages}
+              </span>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {sortedManhwa.map((manhwa) => (
+              {paginatedManhwa.map((manhwa) => (
                 <Card 
                   key={manhwa.id} 
                   className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
@@ -518,6 +569,86 @@ export default function Catalog() {
                   <Button onClick={resetFilters}>
                     Сбросить фильтры
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {totalPages > 1 && sortedManhwa.length > 0 && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(1)}
+                      disabled={currentPage === 1}
+                    >
+                      <Icon name="ChevronsLeft" size={16} />
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <Icon name="ChevronLeft" size={16} />
+                    </Button>
+
+                    {getPageNumbers().map((page, index) => (
+                      page === '...' ? (
+                        <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+                          ...
+                        </span>
+                      ) : (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handlePageChange(page as number)}
+                          className="min-w-[40px]"
+                        >
+                          {page}
+                        </Button>
+                      )
+                    ))}
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <Icon name="ChevronRight" size={16} />
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(totalPages)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <Icon name="ChevronsRight" size={16} />
+                    </Button>
+                  </div>
+
+                  <div className="text-center mt-3 text-sm text-muted-foreground">
+                    Перейти на страницу:{' '}
+                    <Input
+                      type="number"
+                      min={1}
+                      max={totalPages}
+                      value={currentPage}
+                      onChange={(e) => {
+                        const page = parseInt(e.target.value);
+                        if (page >= 1 && page <= totalPages) {
+                          handlePageChange(page);
+                        }
+                      }}
+                      className="inline-block w-20 h-8 text-center mx-2"
+                    />
+                    из {totalPages}
+                  </div>
                 </CardContent>
               </Card>
             )}
