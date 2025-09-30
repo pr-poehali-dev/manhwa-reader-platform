@@ -87,7 +87,7 @@ export default function Catalog() {
   const [minRating, setMinRating] = useState(0);
   const [showFilters, setShowFilters] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(20);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -480,13 +480,33 @@ export default function Catalog() {
               </div>
             )}
 
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="text-sm text-muted-foreground">
                 Показано {startIndex + 1}-{Math.min(endIndex, sortedManhwa.length)} из {sortedManhwa.length}
-              </span>
-              <span>
-                Страница {currentPage} из {totalPages}
-              </span>
+                <span className="ml-2 hidden sm:inline">•</span>
+                <span className="sm:ml-2 block sm:inline">Страница {currentPage} из {totalPages}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">На странице:</span>
+                <Select 
+                  value={itemsPerPage.toString()} 
+                  onValueChange={(value) => {
+                    setItemsPerPage(parseInt(value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[100px] h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
