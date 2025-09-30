@@ -11,6 +11,7 @@ import Teams from "./pages/Teams";
 import CreateTeam from "./pages/CreateTeam";
 import UploadManhwa from "./pages/UploadManhwa";
 import Schedule from "./pages/Schedule";
+import Catalog from "./pages/Catalog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/create-team" element={<CreateTeam />} />
           <Route path="/upload" element={<UploadManhwa />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/catalog" element={<Catalog />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

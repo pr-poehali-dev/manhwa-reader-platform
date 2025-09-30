@@ -209,6 +209,22 @@ export default function Index() {
             <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
               MANHWA READER
             </h1>
+            <nav className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/catalog')}
+              >
+                Каталог
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/schedule')}
+              >
+                Расписание
+              </Button>
+            </nav>
           </div>
 
           <div className="flex items-center gap-2">
@@ -607,9 +623,9 @@ export default function Index() {
             <div>
               <h4 className="font-semibold mb-3">Каталог</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/catalog')}>Все тайтлы</li>
                 <li className="hover:text-primary cursor-pointer">Популярное</li>
                 <li className="hover:text-primary cursor-pointer">Новинки</li>
-                <li className="hover:text-primary cursor-pointer">Жанры</li>
                 <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/schedule')}>Расписание</li>
               </ul>
             </div>
