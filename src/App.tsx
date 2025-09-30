@@ -14,6 +14,7 @@ import UploadManhwa from "./pages/UploadManhwa";
 import Schedule from "./pages/Schedule";
 import Catalog from "./pages/Catalog";
 import Profile from "./pages/Profile";
+import Achievements from "./pages/Achievements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/achievements" element={<Achievements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

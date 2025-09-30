@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop';
 import NotificationBell from '@/components/NotificationBell';
+import SearchWithAutocomplete from '@/components/SearchWithAutocomplete';
 
 interface Manhwa {
   id: number;
@@ -230,14 +231,8 @@ export default function Index() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="relative hidden md:block">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Поиск манхв..."
-                className="w-64 pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+            <div className="hidden md:block w-64">
+              <SearchWithAutocomplete placeholder="Поиск манхв..." />
             </div>
             
             <div className="hidden lg:flex items-center gap-2">
@@ -290,15 +285,7 @@ export default function Index() {
 
         <div className="md:hidden border-t">
           <div className="container px-4 py-2">
-            <div className="relative">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Поиск манхв..."
-                className="w-full pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+            <SearchWithAutocomplete placeholder="Поиск манхв..." />
           </div>
         </div>
       </header>

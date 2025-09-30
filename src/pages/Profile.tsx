@@ -174,6 +174,28 @@ export default function Profile() {
           </Card>
         </div>
 
+        <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Icon name="Trophy" size={32} className="text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Достижения</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Отслеживайте свой прогресс и получайте награды
+                  </p>
+                </div>
+              </div>
+              <Button onClick={() => navigate('/achievements')} className="gap-2">
+                Посмотреть
+                <Icon name="ArrowRight" size={16} />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         <Tabs defaultValue="reading" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
             <TabsTrigger value="reading">

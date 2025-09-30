@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
+import ProtectedImage from '@/components/ProtectedImage';
 
 const MOCK_CHAPTERS = Array.from({ length: 145 }, (_, i) => ({
   id: i + 1,
@@ -124,12 +125,13 @@ export default function Reader() {
       </header>
 
       <main
-        className="pt-16 pb-24 min-h-screen flex flex-col items-center justify-center cursor-pointer"
+        className="pt-16 pb-24 min-h-screen flex flex-col items-center justify-center cursor-pointer select-none"
         onClick={() => setShowControls(!showControls)}
+        onContextMenu={(e) => e.preventDefault()}
       >
         <div className="max-w-4xl w-full px-4">
-          <img
-            src={chapter?.pages[currentPage - 1]?.url}
+          <ProtectedImage
+            src={chapter?.pages[currentPage - 1]?.url || ''}
             alt={`Страница ${currentPage}`}
             className="w-full h-auto rounded-lg shadow-2xl"
           />

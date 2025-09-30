@@ -94,4 +94,23 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  img,
+  canvas {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .reader-page img,
+  .reader-page canvas {
+    pointer-events: auto;
+  }
 }
