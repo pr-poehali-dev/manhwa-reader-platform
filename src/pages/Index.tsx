@@ -31,19 +31,24 @@ const getUserId = () => {
 
 export default function Index() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [activeTab, setActiveTab] = useState('catalog');
   const [searchQuery, setSearchQuery] = useState('');
-  const [manhwaList, setManhwaList] = useState<Manhwa[]>([]);
+  const [popularManhwa, setPopularManhwa] = useState<Manhwa[]>([]);
+  const [currentlyReading, setCurrentlyReading] = useState<Manhwa[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookmarks, setBookmarks] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchManhwa();
-    if (activeTab === 'bookmarks') {
-      fetchBookmarks();
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
     }
-  }, [activeTab]);
+    fetchManhwa();
+    fetchBookmarks();
+  }, []);
 
   const fetchBookmarks = async () => {
     try {
@@ -57,19 +62,6 @@ export default function Index() {
       if (data.bookmarks) {
         const bookmarkIds = new Set(data.bookmarks.map((b: any) => b.manhwa_id));
         setBookmarks(bookmarkIds);
-        
-        if (activeTab === 'bookmarks') {
-          setManhwaList(data.bookmarks.map((b: any) => ({
-            id: b.manhwa_id,
-            title: b.manhwa_title,
-            cover: b.cover,
-            rating: b.rating,
-            chapters: 0,
-            status: 'ongoing',
-            genre: [],
-            views: 0
-          })));
-        }
       }
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
@@ -111,32 +103,31 @@ export default function Index() {
   };
 
   const fetchManhwa = async () => {
-    setLoading(true);
     try {
-      let url = API_URL;
-      const params = new URLSearchParams();
-      
-      if (activeTab === 'popular') {
-        params.append('sort', 'views');
-      } else if (activeTab === 'new') {
-        params.append('sort', 'new');
-      } else if (activeTab === 'catalog') {
-        params.append('sort', 'rating');
-      }
-
-      if (params.toString()) {
-        url += '?' + params.toString();
-      }
-
-      const response = await fetch(url);
+      const response = await fetch(API_URL);
       const data = await response.json();
       
-      if (Array.isArray(data)) {
-        setManhwaList(data);
+      if (data.manhwa) {
+        const manhwaData = data.manhwa.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          cover: m.cover_url,
+          chapters: m.chapter_count || 0,
+          rating: m.rating || 0,
+          status: m.status || 'ongoing',
+          genre: m.genres || [],
+          views: m.views || 0
+        }));
+        
+        const sortedByRating = [...manhwaData].sort((a, b) => b.rating - a.rating);
+        const sortedByViews = [...manhwaData].sort((a, b) => b.views - a.views);
+        
+        setPopularManhwa(sortedByRating.slice(0, 5));
+        setCurrentlyReading(sortedByViews.slice(0, 12));
       }
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching manhwa:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -144,6 +135,7 @@ export default function Index() {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -151,37 +143,27 @@ export default function Index() {
     }
   };
 
-  const filteredManhwa = manhwaList.filter(manhwa =>
-    manhwa.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const allManhwa = [...popularManhwa, ...currentlyReading];
+  const filteredManhwa = searchQuery 
+    ? allManhwa.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allManhwa;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Icon name="Loader2" size={48} className="animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-primary">MANHWA READER</h1>
-            
-            <nav className="hidden md:flex items-center gap-1">
-              {[
-                { id: 'home', label: 'Главная', icon: 'Home' },
-                { id: 'catalog', label: 'Каталог', icon: 'Grid2x2' },
-                { id: 'popular', label: 'Популярное', icon: 'TrendingUp' },
-                { id: 'new', label: 'Новинки', icon: 'Sparkles' },
-                { id: 'bookmarks', label: 'Закладки', icon: 'Bookmark' }
-              ].map(tab => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setActiveTab(tab.id)}
-                  className="gap-2"
-                >
-                  <Icon name={tab.icon as any} size={16} />
-                  {tab.label}
-                </Button>
-              ))}
-            </nav>
+            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
+              MANHWA READER
+            </h1>
           </div>
 
           <div className="flex items-center gap-2">
@@ -219,7 +201,7 @@ export default function Index() {
               <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
             </Button>
 
-            <Button variant="default" className="gap-2">
+            <Button variant="default" className="gap-2 hidden sm:flex">
               <Icon name="Heart" size={18} />
               Донат
             </Button>
@@ -245,112 +227,184 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="container px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">
-            {activeTab === 'home' && 'Главная'}
-            {activeTab === 'catalog' && 'Каталог манхв'}
-            {activeTab === 'popular' && 'Популярные манхвы'}
-            {activeTab === 'new' && 'Новинки'}
-            {activeTab === 'bookmarks' && 'Мои закладки'}
-          </h2>
-          <p className="text-muted-foreground">
-            {filteredManhwa.length} манхв найдено
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {filteredManhwa.map((manhwa) => (
-            <Card 
-              key={manhwa.id} 
-              className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-              onClick={() => navigate(`/reader/${manhwa.id}`)}
-            >
-              <div className="aspect-[3/4] relative overflow-hidden">
-                <img
-                  src={manhwa.cover}
-                  alt={manhwa.title}
-                  className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute top-2 right-2 flex flex-col gap-1">
-                  <Button
-                    size="icon"
-                    variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                    className="h-8 w-8"
-                    onClick={(e) => toggleBookmark(manhwa.id, e)}
-                  >
-                    <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                  </Button>
-                  <Badge variant="destructive" className="text-xs font-bold">
-                    <Icon name="Star" size={12} className="mr-1" />
-                    {manhwa.rating}
-                  </Badge>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <Button
-                  size="sm"
-                  className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/reader/${manhwa.id}`);
-                  }}
+      <main className="container px-4 py-8 space-y-12">
+        {searchQuery ? (
+          <section>
+            <h2 className="text-2xl font-bold mb-6">Результаты поиска</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {filteredManhwa.map((manhwa) => (
+                <Card 
+                  key={manhwa.id} 
+                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  onClick={() => navigate(`/reader/${manhwa.id}`)}
                 >
-                  <Icon name="BookOpen" size={16} />
-                  Читать
-                </Button>
+                  <div className="aspect-[3/4] relative overflow-hidden">
+                    <img
+                      src={manhwa.cover}
+                      alt={manhwa.title}
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      <Button
+                        size="icon"
+                        variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
+                        className="h-8 w-8"
+                        onClick={(e) => toggleBookmark(manhwa.id, e)}
+                      >
+                        <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
+                      </Button>
+                      <Badge variant="destructive" className="text-xs font-bold">
+                        <Icon name="Star" size={12} className="mr-1" />
+                        {manhwa.rating}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-3">
+                    <h3 className="font-semibold text-sm line-clamp-2 min-h-[40px]">
+                      {manhwa.title}
+                    </h3>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <>
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold flex items-center gap-3">
+                  <Icon name="TrendingUp" size={32} className="text-primary" />
+                  Популярные тайтлы
+                </h2>
               </div>
               
-              <CardContent className="p-3">
-                <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
-                  {manhwa.title}
-                </h3>
-                
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {manhwa.genre.slice(0, 2).map((genre) => (
-                    <Badge key={genre} variant="secondary" className="text-xs">
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {popularManhwa.map((manhwa) => (
+                  <Card 
+                    key={manhwa.id} 
+                    className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    onClick={() => navigate(`/reader/${manhwa.id}`)}
+                  >
+                    <div className="aspect-[3/4] relative overflow-hidden">
+                      <img
+                        src={manhwa.cover}
+                        alt={manhwa.title}
+                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        <Button
+                          size="icon"
+                          variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
+                          className="h-8 w-8"
+                          onClick={(e) => toggleBookmark(manhwa.id, e)}
+                        >
+                          <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
+                        </Button>
+                        <Badge variant="destructive" className="text-xs font-bold">
+                          <Icon name="Star" size={12} className="mr-1" />
+                          {manhwa.rating}
+                        </Badge>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="font-bold text-white text-lg mb-2 line-clamp-2">
+                          {manhwa.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-white/90 text-sm">
+                          <Icon name="Eye" size={14} />
+                          <span>{manhwa.views.toLocaleString()}</span>
+                          <span className="mx-2">•</span>
+                          <Icon name="BookText" size={14} />
+                          <span>{manhwa.chapters} гл.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </section>
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Icon name="BookText" size={14} />
-                    <span>{manhwa.chapters} гл.</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Icon name="Eye" size={14} />
-                    <span>{(manhwa.views / 1000000).toFixed(1)}M</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-3">
+                  <Icon name="Flame" size={28} className="text-orange-500" />
+                  Сейчас читают
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                {currentlyReading.map((manhwa) => (
+                  <Card 
+                    key={manhwa.id} 
+                    className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    onClick={() => navigate(`/reader/${manhwa.id}`)}
+                  >
+                    <div className="aspect-[3/4] relative overflow-hidden">
+                      <img
+                        src={manhwa.cover}
+                        alt={manhwa.title}
+                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        <Button
+                          size="icon"
+                          variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
+                          className="h-8 w-8"
+                          onClick={(e) => toggleBookmark(manhwa.id, e)}
+                        >
+                          <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
+                        </Button>
+                        <Badge variant="destructive" className="text-xs font-bold">
+                          <Icon name="Star" size={12} className="mr-1" />
+                          {manhwa.rating}
+                        </Badge>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <Button
+                        size="sm"
+                        className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/reader/${manhwa.id}`);
+                        }}
+                      >
+                        <Icon name="BookOpen" size={16} />
+                        Читать
+                      </Button>
+                    </div>
+                    
+                    <CardContent className="p-3">
+                      <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
+                        {manhwa.title}
+                      </h3>
+                      
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {manhwa.genre.slice(0, 2).map((genre) => (
+                          <Badge key={genre} variant="secondary" className="text-xs">
+                            {genre}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Icon name="BookText" size={14} />
+                          <span>{manhwa.chapters} гл.</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon name="Eye" size={14} />
+                          <span>{manhwa.views}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </main>
-
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-card z-50">
-        <div className="grid grid-cols-5 gap-1 p-2">
-          {[
-            { id: 'home', label: 'Главная', icon: 'Home' },
-            { id: 'catalog', label: 'Каталог', icon: 'Grid2x2' },
-            { id: 'popular', label: 'Топ', icon: 'TrendingUp' },
-            { id: 'new', label: 'Новое', icon: 'Sparkles' },
-            { id: 'bookmarks', label: 'Я', icon: 'User' }
-          ].map(tab => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab(tab.id)}
-              className="flex flex-col h-auto py-2 px-1"
-            >
-              <Icon name={tab.icon as any} size={20} />
-              <span className="text-xs mt-1">{tab.label}</span>
-            </Button>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }
