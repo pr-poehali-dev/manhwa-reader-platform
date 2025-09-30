@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Novels from "./pages/Novels";
 import Reader from "./pages/Reader";
 import ManhwaDetails from "./pages/ManhwaDetails";
 import Admin from "./pages/Admin";
@@ -28,6 +29,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/novels" element={<Novels />} />
           <Route path="/manhwa/:id" element={<ManhwaDetails />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />

@@ -58,6 +58,7 @@ const getUserId = () => {
 
 export default function Index() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [contentType, setContentType] = useState<'manhwa' | 'novels'>('manhwa');
   const [searchQuery, setSearchQuery] = useState('');
   const [popularManhwa, setPopularManhwa] = useState<Manhwa[]>([]);
   const [currentlyReading, setCurrentlyReading] = useState<Manhwa[]>([]);
@@ -215,9 +216,37 @@ export default function Index() {
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
-              MANHWA READER
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
+                MANHWA READER
+              </h1>
+              <div className="hidden sm:flex items-center gap-1 bg-muted rounded-lg p-1">
+                <Button
+                  variant={contentType === 'manhwa' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setContentType('manhwa');
+                    navigate('/');
+                  }}
+                  className="text-xs"
+                >
+                  <Icon name="BookImage" size={14} className="mr-1" />
+                  Манхва
+                </Button>
+                <Button
+                  variant={contentType === 'novels' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setContentType('novels');
+                    navigate('/novels');
+                  }}
+                  className="text-xs"
+                >
+                  <Icon name="BookText" size={14} className="mr-1" />
+                  Новеллы
+                </Button>
+              </div>
+            </div>
             <nav className="hidden md:flex items-center gap-2">
               <Button
                 variant="ghost"
