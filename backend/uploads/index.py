@@ -403,6 +403,7 @@ def handle_uploads(method: str, event: Dict[str, Any], cursor, conn) -> Dict[str
         
         body = json.loads(event.get('body', '{}'))
         upload_id = body.get('upload_id')
+        action = body.get('action', 'update')
         
         if not upload_id:
             return {
@@ -423,6 +424,40 @@ def handle_uploads(method: str, event: Dict[str, Any], cursor, conn) -> Dict[str
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'isBase64Encoded': False,
                 'body': json.dumps({'error': 'Upload not found'})
+            }
+        
+        if action == 'moderate':
+            moderation_status = body.get('moderation_status')
+            moderation_notes = body.get('moderation_notes', '')
+            
+            if moderation_status not in ['approved', 'rejected', 'pending']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'Invalid moderation status'})
+                }
+            
+            is_approved = moderation_status == 'approved'
+            
+            cursor.execute('''
+                UPDATE user_uploads 
+                SET moderation_status = %s, 
+                    is_approved = %s,
+                    moderation_notes = %s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                RETURNING *
+            ''', (moderation_status, is_approved, moderation_notes, upload_id))
+            
+            updated_upload = cursor.fetchone()
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'isBase64Encoded': False,
+                'body': json.dumps({'upload': dict(updated_upload)}, default=str)
             }
         
         if upload['uploaded_by'] != user_id:
