@@ -6,6 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Novels from "./pages/Novels";
+import NovelDetails from "./pages/NovelDetails";
+import NovelReader from "./pages/NovelReader";
+import NovelCatalog from "./pages/NovelCatalog";
+import UploadNovel from "./pages/UploadNovel";
 import Reader from "./pages/Reader";
 import ManhwaDetails from "./pages/ManhwaDetails";
 import Admin from "./pages/Admin";
@@ -30,6 +34,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/novels" element={<Novels />} />
+          <Route path="/novels/catalog" element={<NovelCatalog />} />
+          <Route path="/novel/:id" element={<NovelDetails />} />
+          <Route path="/novel-reader/:novelId/:chapterNumber" element={<NovelReader />} />
+          <Route path="/upload-novel" element={<UploadNovel />} />
           <Route path="/manhwa/:id" element={<ManhwaDetails />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />

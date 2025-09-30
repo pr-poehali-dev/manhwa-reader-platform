@@ -47,6 +47,10 @@ const MOCK_MANHWA = {
   chapters: 179,
   views: 5234567,
   bookmarks: 145230,
+  donationLinks: {
+    boosty: 'https://boosty.to/example',
+    vk: 'https://vk.com/donut/example'
+  }
 };
 
 const MOCK_CHAPTERS: Chapter[] = Array.from({ length: 179 }, (_, i) => ({
@@ -180,6 +184,54 @@ export default function ManhwaDetails() {
                 </SelectContent>
               </Select>
             </div>
+
+            {MOCK_MANHWA.donationLinks && (
+              <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                <div className="flex items-start gap-2 mb-3">
+                  <Icon name="Heart" size={20} className="text-primary mt-0.5" />
+                  <div>
+                    <h3 className="font-bold text-sm">Поддержать переводчиков</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Донаты помогают команде продолжать работу
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {MOCK_MANHWA.donationLinks.boosty && (
+                    <a 
+                      href={MOCK_MANHWA.donationLinks.boosty}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button variant="outline" className="w-full justify-start" size="sm">
+                        <Icon name="ExternalLink" size={16} className="mr-2" />
+                        Boosty
+                      </Button>
+                    </a>
+                  )}
+                  
+                  {MOCK_MANHWA.donationLinks.vk && (
+                    <a 
+                      href={MOCK_MANHWA.donationLinks.vk}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button variant="outline" className="w-full justify-start" size="sm">
+                        <Icon name="ExternalLink" size={16} className="mr-2" />
+                        VK Донат
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                <p className="text-[10px] text-muted-foreground mt-3 leading-tight">
+                  Переход на внешние платформы. Все транзакции проходят через них.
+                </p>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>

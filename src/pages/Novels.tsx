@@ -321,7 +321,7 @@ export default function Novels() {
           </button>
           
           <button
-            onClick={() => navigate('/upload')}
+            onClick={() => navigate('/upload-novel')}
             className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
           >
             <Icon name="Upload" size={20} />

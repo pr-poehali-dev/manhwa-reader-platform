@@ -46,7 +46,10 @@ export default function UploadManhwa() {
     artist: '',
     status: 'ongoing',
     release_year: new Date().getFullYear(),
-    team_id: ''
+    team_id: '',
+    donationBoosty: '',
+    donationVK: '',
+    donationPatreon: ''
   });
 
   useEffect(() => {
@@ -285,7 +288,90 @@ export default function UploadManhwa() {
                   ))}
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Heart" size={24} className="text-primary" />
+                Ссылки на донаты (необязательно)
+              </CardTitle>
+              <CardDescription>
+                Добавьте ссылки на ваши страницы донатов. Все платежи проходят через внешние платформы — безопасно и без налоговых рисков для сервиса.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="boosty" className="flex items-center gap-2">
+                  <Icon name="ExternalLink" size={16} />
+                  Boosty
+                </Label>
+                <Input
+                  id="boosty"
+                  value={formData.donationBoosty}
+                  onChange={(e) => setFormData({ ...formData, donationBoosty: e.target.value })}
+                  placeholder="https://boosty.to/ваш-ник"
+                  type="url"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vk_donat" className="flex items-center gap-2">
+                  <Icon name="ExternalLink" size={16} />
+                  VK Донат
+                </Label>
+                <Input
+                  id="vk_donat"
+                  value={formData.donationVK}
+                  onChange={(e) => setFormData({ ...formData, donationVK: e.target.value })}
+                  placeholder="https://vk.com/donut/ваша-группа"
+                  type="url"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="patreon_link" className="flex items-center gap-2">
+                  <Icon name="ExternalLink" size={16} />
+                  Patreon
+                </Label>
+                <Input
+                  id="patreon_link"
+                  value={formData.donationPatreon}
+                  onChange={(e) => setFormData({ ...formData, donationPatreon: e.target.value })}
+                  placeholder="https://patreon.com/ваш-ник"
+                  type="url"
+                />
+              </div>
+
+              <div className="bg-card/50 rounded-lg p-4 space-y-2">
+                <div className="flex items-start gap-2">
+                  <Icon name="ShieldCheck" size={20} className="text-green-500 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-sm">Безопасность</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Читатели переходят на ваши страницы на внешних платформах. 
+                      Мы не обрабатываем платежи и не храним финансовую информацию.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" size={20} className="text-blue-500 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-sm">Рекомендации</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Используйте платформы с юридическим лицом в РФ (Boosty, VK) 
+                      или зарегистрируйтесь как самозанятый для работы с зарубежными сервисами.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
