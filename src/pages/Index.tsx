@@ -125,8 +125,8 @@ export default function Index() {
               Донат
             </Button>
 
-            <Button variant="ghost" size="icon">
-              <Icon name="User" size={20} />
+            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
+              <Icon name="Settings" size={20} />
             </Button>
           </div>
         </div>
