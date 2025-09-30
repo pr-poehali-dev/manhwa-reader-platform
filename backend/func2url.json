@@ -1,7 +1,7 @@
 {
+  "uploads": "https://functions.poehali.dev/80df506b-6764-4bb1-a3ad-652c4be9e920",
   "bookmarks": "https://functions.poehali.dev/64b9299a-9048-4727-b686-807ace50e7e1",
   "upload-chapter": "https://functions.poehali.dev/13fb9333-8228-419c-87f0-3814e0eb716f",
   "manhwa": "https://functions.poehali.dev/4e8cb1b6-88f9-43e5-89db-ab75bfa82345",
-  "manhwa-api": "https://functions.poehali.dev/42aff58a-a1c0-4007-8f74-3e795216aabd",
   "manhwa-details": "https://functions.poehali.dev/e9240d57-97f9-4b7c-8b94-8fd36e67aac8"
 }

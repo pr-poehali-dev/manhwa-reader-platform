@@ -195,6 +195,26 @@ export default function Index() {
               />
             </div>
             
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/upload')}
+              className="gap-2 hidden sm:flex"
+            >
+              <Icon name="Upload" size={16} />
+              Загрузить
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/teams')}
+              className="gap-2 hidden sm:flex"
+            >
+              <Icon name="Users" size={16} />
+              Команды
+            </Button>
+            
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
             </Button>

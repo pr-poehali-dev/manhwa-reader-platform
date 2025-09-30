@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Reader from "./pages/Reader";
 import Admin from "./pages/Admin";
+import Teams from "./pages/Teams";
+import CreateTeam from "./pages/CreateTeam";
+import UploadManhwa from "./pages/UploadManhwa";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/create-team" element={<CreateTeam />} />
+          <Route path="/upload" element={<UploadManhwa />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
