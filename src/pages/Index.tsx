@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,74 +6,61 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 
-const MOCK_MANHWA = [
-  {
-    id: 1,
-    title: 'Возвращение Мастера Меча',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 145,
-    rating: 9.2,
-    status: 'ongoing',
-    genre: ['Боевик', 'Фэнтези'],
-    views: 2500000
-  },
-  {
-    id: 2,
-    title: 'Игрок Соло',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 179,
-    rating: 9.8,
-    status: 'ongoing',
-    genre: ['Боевик', 'Фэнтези'],
-    views: 5200000
-  },
-  {
-    id: 3,
-    title: 'Башня Бога',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 562,
-    rating: 9.5,
-    status: 'ongoing',
-    genre: ['Приключения', 'Фэнтези'],
-    views: 8900000
-  },
-  {
-    id: 4,
-    title: 'Всемогущий Лектор',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 87,
-    rating: 8.9,
-    status: 'ongoing',
-    genre: ['Драма', 'Фэнтези'],
-    views: 1800000
-  },
-  {
-    id: 5,
-    title: 'Убийца Демонов',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 203,
-    rating: 9.1,
-    status: 'ongoing',
-    genre: ['Боевик', 'Сёнэн'],
-    views: 3400000
-  },
-  {
-    id: 6,
-    title: 'Боевые Искусства Бессмертия',
-    cover: 'https://v3.fal.media/files/rabbit/Exk-Or9IWGWFNw_y6zO4q_output.png',
-    chapters: 124,
-    rating: 8.7,
-    status: 'ongoing',
-    genre: ['Боевик', 'Приключения'],
-    views: 2100000
-  }
-];
+interface Manhwa {
+  id: number;
+  title: string;
+  cover: string;
+  chapters: number;
+  rating: number;
+  status: string;
+  genre: string[];
+  views: number;
+}
+
+const API_URL = 'https://functions.poehali.dev/4e8cb1b6-88f9-43e5-89db-ab75bfa82345';
 
 export default function Index() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [activeTab, setActiveTab] = useState('catalog');
   const [searchQuery, setSearchQuery] = useState('');
+  const [manhwaList, setManhwaList] = useState<Manhwa[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchManhwa();
+  }, [activeTab]);
+
+  const fetchManhwa = async () => {
+    setLoading(true);
+    try {
+      let url = API_URL;
+      const params = new URLSearchParams();
+      
+      if (activeTab === 'popular') {
+        params.append('sort', 'views');
+      } else if (activeTab === 'new') {
+        params.append('sort', 'new');
+      } else if (activeTab === 'catalog') {
+        params.append('sort', 'rating');
+      }
+
+      if (params.toString()) {
+        url += '?' + params.toString();
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (Array.isArray(data)) {
+        setManhwaList(data);
+      }
+    } catch (error) {
+      console.error('Error fetching manhwa:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -85,7 +72,7 @@ export default function Index() {
     }
   };
 
-  const filteredManhwa = MOCK_MANHWA.filter(manhwa =>
+  const filteredManhwa = manhwaList.filter(manhwa =>
     manhwa.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

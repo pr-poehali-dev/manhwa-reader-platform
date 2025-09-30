@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Get all manhwa",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [
+        {
+          "id": "number",
+          "title": "string",
+          "cover": "string",
+          "rating": "number",
+          "genre": "array"
+        }
+      ],
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Search manhwa",
+      "method": "GET",
+      "path": "/?search=Игрок",
+      "expectedStatus": 200,
+      "expectedBody": [
+        {
+          "title": "string"
+        }
+      ],
+      "bodyMatcher": "partial"
+    }
+  ]
+}

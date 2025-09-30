@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "Add new manhwa",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "add_manhwa",
+        "title": "Тестовая Манхва",
+        "description": "Описание тестовой манхвы",
+        "cover_url": "https://example.com/cover.jpg",
+        "genres": ["Боевик", "Фэнтези"]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "manhwa_id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

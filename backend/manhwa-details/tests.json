@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get manhwa details",
+      "method": "GET",
+      "path": "/?manhwa_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "id": "number",
+        "title": "string",
+        "chapters": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
