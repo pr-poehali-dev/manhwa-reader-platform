@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Get user bookmarks",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "bookmarks": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

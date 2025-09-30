@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +18,16 @@ interface Manhwa {
 }
 
 const API_URL = 'https://functions.poehali.dev/4e8cb1b6-88f9-43e5-89db-ab75bfa82345';
+const BOOKMARKS_API = 'https://functions.poehali.dev/64b9299a-9048-4727-b686-807ace50e7e1';
+
+const getUserId = () => {
+  let userId = localStorage.getItem('manhwa_user_id');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('manhwa_user_id', userId);
+  }
+  return userId;
+};
 
 export default function Index() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -25,11 +35,80 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [manhwaList, setManhwaList] = useState<Manhwa[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bookmarks, setBookmarks] = useState<Set<number>>(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchManhwa();
+    if (activeTab === 'bookmarks') {
+      fetchBookmarks();
+    }
   }, [activeTab]);
+
+  const fetchBookmarks = async () => {
+    try {
+      const response = await fetch(BOOKMARKS_API, {
+        headers: {
+          'X-User-Id': getUserId()
+        }
+      });
+      const data = await response.json();
+      
+      if (data.bookmarks) {
+        const bookmarkIds = new Set(data.bookmarks.map((b: any) => b.manhwa_id));
+        setBookmarks(bookmarkIds);
+        
+        if (activeTab === 'bookmarks') {
+          setManhwaList(data.bookmarks.map((b: any) => ({
+            id: b.manhwa_id,
+            title: b.manhwa_title,
+            cover: b.cover,
+            rating: b.rating,
+            chapters: 0,
+            status: 'ongoing',
+            genre: [],
+            views: 0
+          })));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching bookmarks:', error);
+    }
+  };
+
+  const toggleBookmark = async (manhwaId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const isBookmarked = bookmarks.has(manhwaId);
+    
+    try {
+      if (isBookmarked) {
+        await fetch(`${BOOKMARKS_API}?manhwa_id=${manhwaId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-User-Id': getUserId()
+          }
+        });
+        setBookmarks(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(manhwaId);
+          return newSet;
+        });
+      } else {
+        await fetch(BOOKMARKS_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': getUserId()
+          },
+          body: JSON.stringify({ manhwa_id: manhwaId })
+        });
+        setBookmarks(prev => new Set(prev).add(manhwaId));
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    }
+  };
 
   const fetchManhwa = async () => {
     setLoading(true);
@@ -174,6 +253,14 @@ export default function Index() {
                   className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  <Button
+                    size="icon"
+                    variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
+                    className="h-8 w-8"
+                    onClick={(e) => toggleBookmark(manhwa.id, e)}
+                  >
+                    <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
+                  </Button>
                   <Badge variant="destructive" className="text-xs font-bold">
                     <Icon name="Star" size={12} className="mr-1" />
                     {manhwa.rating}
