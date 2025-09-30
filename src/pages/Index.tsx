@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop';
+import NotificationBell from '@/components/NotificationBell';
 
 interface Manhwa {
   id: number;
@@ -271,6 +272,8 @@ export default function Index() {
               </Button>
             </div>
             
+            <NotificationBell />
+            
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
             </Button>
@@ -443,7 +446,7 @@ export default function Index() {
                   <Card 
                     key={manhwa.id} 
                     className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate(`/reader/${manhwa.id}`)}
+                    onClick={() => navigate(`/manhwa/${manhwa.id}`)}
                   >
                     <div className="aspect-[3/4] relative overflow-hidden">
                       <img

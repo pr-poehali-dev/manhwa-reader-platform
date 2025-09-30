@@ -515,7 +515,7 @@ export default function Catalog() {
                 <Card 
                   key={manhwa.id} 
                   className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                  onClick={() => navigate(`/reader/${manhwa.id}`)}
+                  onClick={() => navigate(`/manhwa/${manhwa.id}`)}
                 >
                   <div className="aspect-[3/4] relative overflow-hidden">
                     <img

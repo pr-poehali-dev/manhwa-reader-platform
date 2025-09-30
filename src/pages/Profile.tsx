@@ -174,18 +174,30 @@ export default function Profile() {
           </Card>
         </div>
 
-        <Tabs defaultValue="bookmarks" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="bookmarks">
-              <Icon name="Bookmark" size={16} className="mr-2" />
-              Закладки
+        <Tabs defaultValue="reading" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+            <TabsTrigger value="reading">
+              <Icon name="BookOpen" size={16} className="mr-2 hidden sm:block" />
+              Читаю
             </TabsTrigger>
-            <TabsTrigger value="history">
-              <Icon name="History" size={16} className="mr-2" />
-              История
+            <TabsTrigger value="planned">
+              <Icon name="Clock" size={16} className="mr-2 hidden sm:block" />
+              Запланировано
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              <Icon name="CheckCircle2" size={16} className="mr-2 hidden sm:block" />
+              Прочитано
+            </TabsTrigger>
+            <TabsTrigger value="dropped">
+              <Icon name="XCircle" size={16} className="mr-2 hidden sm:block" />
+              Брошено
+            </TabsTrigger>
+            <TabsTrigger value="bookmarks">
+              <Icon name="Bookmark" size={16} className="mr-2 hidden sm:block" />
+              Избранное
             </TabsTrigger>
             <TabsTrigger value="settings">
-              <Icon name="Settings" size={16} className="mr-2" />
+              <Icon name="Settings" size={16} className="mr-2 hidden sm:block" />
               Настройки
             </TabsTrigger>
           </TabsList>
@@ -249,14 +261,62 @@ export default function Profile() {
             )}
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent value="reading" className="space-y-4">
             <Card>
               <CardContent className="p-12 text-center">
-                <Icon name="History" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-xl font-bold mb-2">История чтения</h3>
-                <p className="text-muted-foreground">
-                  Здесь будет отображаться история прочитанных глав
+                <Icon name="BookOpen" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-bold mb-2">Читаю</h3>
+                <p className="text-muted-foreground mb-4">
+                  Здесь будут отображаться тайтлы, которые вы читаете
                 </p>
+                <Button onClick={() => navigate('/catalog')}>
+                  Начать читать
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="planned" className="space-y-4">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Icon name="Clock" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-bold mb-2">Запланировано</h3>
+                <p className="text-muted-foreground mb-4">
+                  Здесь будут тайтлы, которые вы планируете прочитать
+                </p>
+                <Button onClick={() => navigate('/catalog')}>
+                  Добавить в список
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="completed" className="space-y-4">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Icon name="CheckCircle2" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-bold mb-2">Прочитано</h3>
+                <p className="text-muted-foreground mb-4">
+                  Здесь будут тайтлы, которые вы завершили
+                </p>
+                <Button onClick={() => navigate('/catalog')}>
+                  Найти новое
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="dropped" className="space-y-4">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Icon name="XCircle" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-xl font-bold mb-2">Брошено</h3>
+                <p className="text-muted-foreground mb-4">
+                  Здесь будут тайтлы, которые вы бросили читать
+                </p>
+                <Button onClick={() => navigate('/catalog')}>
+                  Перейти в каталог
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>

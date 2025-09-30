@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Reader from "./pages/Reader";
+import ManhwaDetails from "./pages/ManhwaDetails";
 import Admin from "./pages/Admin";
 import Teams from "./pages/Teams";
 import CreateTeam from "./pages/CreateTeam";
@@ -25,6 +26,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/manhwa/:id" element={<ManhwaDetails />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/teams" element={<Teams />} />
