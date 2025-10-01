@@ -34,8 +34,7 @@ export default function UploadNovel() {
     coverImage: null as File | null,
     selectedGenres: [] as string[],
     donationBoosty: '',
-    donationVK: '',
-    donationPatreon: ''
+    donationVK: ''
   });
 
   const [volumes, setVolumes] = useState([
@@ -251,20 +250,6 @@ export default function UploadNovel() {
                   value={formData.donationVK}
                   onChange={(e) => setFormData({ ...formData, donationVK: e.target.value })}
                   placeholder="https://vk.com/donut/ваша-группа"
-                  type="url"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="patreon" className="flex items-center gap-2">
-                  <Icon name="ExternalLink" size={16} />
-                  Patreon
-                </Label>
-                <Input
-                  id="patreon"
-                  value={formData.donationPatreon}
-                  onChange={(e) => setFormData({ ...formData, donationPatreon: e.target.value })}
-                  placeholder="https://patreon.com/ваш-ник"
                   type="url"
                 />
               </div>

@@ -206,20 +206,6 @@ export default function NovelDetails() {
                       </Button>
                     </a>
                   )}
-                  
-                  {novel.donationLinks.patreon && (
-                    <a 
-                      href={novel.donationLinks.patreon}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <Button variant="outline" className="w-full justify-start" size="sm">
-                        <Icon name="ExternalLink" size={16} className="mr-2" />
-                        Patreon
-                      </Button>
-                    </a>
-                  )}
                 </div>
 
                 <p className="text-[10px] text-muted-foreground mt-3 leading-tight">

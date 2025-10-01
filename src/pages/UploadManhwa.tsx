@@ -48,8 +48,7 @@ export default function UploadManhwa() {
     release_year: new Date().getFullYear(),
     team_id: '',
     donationBoosty: '',
-    donationVK: '',
-    donationPatreon: ''
+    donationVK: ''
   });
 
   useEffect(() => {
@@ -326,20 +325,6 @@ export default function UploadManhwa() {
                   value={formData.donationVK}
                   onChange={(e) => setFormData({ ...formData, donationVK: e.target.value })}
                   placeholder="https://vk.com/donut/ваша-группа"
-                  type="url"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="patreon_link" className="flex items-center gap-2">
-                  <Icon name="ExternalLink" size={16} />
-                  Patreon
-                </Label>
-                <Input
-                  id="patreon_link"
-                  value={formData.donationPatreon}
-                  onChange={(e) => setFormData({ ...formData, donationPatreon: e.target.value })}
-                  placeholder="https://patreon.com/ваш-ник"
                   type="url"
                 />
               </div>
