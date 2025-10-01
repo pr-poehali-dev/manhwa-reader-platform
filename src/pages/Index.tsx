@@ -271,6 +271,15 @@ export default function Index() {
               >
                 Расписание
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/translator-guide')}
+                className="gap-1"
+              >
+                <Icon name="Briefcase" size={14} />
+                Для переводчиков
+              </Button>
             </nav>
           </div>
 

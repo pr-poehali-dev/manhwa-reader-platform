@@ -10,6 +10,7 @@ import NovelDetails from "./pages/NovelDetails";
 import NovelReader from "./pages/NovelReader";
 import NovelCatalog from "./pages/NovelCatalog";
 import UploadNovel from "./pages/UploadNovel";
+import TranslatorGuide from "./pages/TranslatorGuide";
 import Reader from "./pages/Reader";
 import ManhwaDetails from "./pages/ManhwaDetails";
 import Admin from "./pages/Admin";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/novel/:id" element={<NovelDetails />} />
           <Route path="/novel-reader/:novelId/:chapterNumber" element={<NovelReader />} />
           <Route path="/upload-novel" element={<UploadNovel />} />
+          <Route path="/translator-guide" element={<TranslatorGuide />} />
           <Route path="/manhwa/:id" element={<ManhwaDetails />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />

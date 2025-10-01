@@ -347,6 +347,29 @@ export default function UploadNovel() {
             </CardContent>
           </Card>
 
+          <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <Icon name="Info" size={24} className="text-blue-500 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold mb-2">Хотите получать донаты легально?</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Узнайте, как настроить уровни подписки, ранний доступ к главам и оформиться как самозанятый без налоговых рисков.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/translator-guide')}
+                  >
+                    <Icon name="BookOpen" size={16} className="mr-2" />
+                    Открыть гайд для переводчиков
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="flex gap-4">
             <Button type="button" variant="outline" onClick={() => navigate(-1)} className="flex-1">
               Отмена
