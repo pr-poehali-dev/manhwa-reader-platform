@@ -1,13 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import Icon from '@/components/ui/icon';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '@/components/ui/icon';
 import ScrollToTop from '@/components/ScrollToTop';
-import NotificationBell from '@/components/NotificationBell';
-import SearchWithAutocomplete from '@/components/SearchWithAutocomplete';
+import IndexHeader from '@/components/index/IndexHeader';
+import IndexFilters from '@/components/index/IndexFilters';
+import IndexSections from '@/components/index/IndexSections';
+import IndexFooter from '@/components/index/IndexFooter';
+import ManhwaCard from '@/components/index/ManhwaCard';
 
 interface Manhwa {
   id: number;
@@ -20,29 +19,6 @@ interface Manhwa {
   views: number;
   updated_at?: string;
 }
-
-const GENRES = [
-  'Боевик', 'Романтика', 'Фэнтези', 'Драма', 'Комедия',
-  'Приключения', 'Психология', 'Школа', 'Сёнэн', 'Сёдзё',
-  'Сэйнэн', 'Повседневность', 'Меха', 'Ужасы', 'Детектив'
-];
-
-const TYPE_FILTERS = [
-  { label: 'Все', value: 'all' },
-  { label: 'Манхва', value: 'manhwa' },
-  { label: 'Манга', value: 'manga' },
-  { label: 'Маньхуа', value: 'manhua' },
-  { label: 'Западный комикс', value: 'comic' },
-  { label: 'Рукомикс', value: 'russian' }
-];
-
-const STATUS_FILTERS = [
-  { label: 'Все', value: 'all' },
-  { label: 'Онгоинг', value: 'ongoing' },
-  { label: 'Завершён', value: 'completed' },
-  { label: 'Заморожен', value: 'frozen' },
-  { label: 'Заброшен', value: 'abandoned' }
-];
 
 const API_URL = 'https://functions.poehali.dev/4e8cb1b6-88f9-43e5-89db-ab75bfa82345';
 const BOOKMARKS_API = 'https://functions.poehali.dev/64b9299a-9048-4727-b686-807ace50e7e1';
@@ -213,220 +189,29 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
-                MANHWA READER
-              </h1>
-              <div className="hidden sm:flex items-center gap-1 bg-muted rounded-lg p-1">
-                <Button
-                  variant={contentType === 'manhwa' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setContentType('manhwa');
-                    navigate('/');
-                  }}
-                  className="text-xs"
-                >
-                  <Icon name="BookImage" size={14} className="mr-1" />
-                  Манхва
-                </Button>
-                <Button
-                  variant={contentType === 'novels' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setContentType('novels');
-                    navigate('/novels');
-                  }}
-                  className="text-xs"
-                >
-                  <Icon name="BookText" size={14} className="mr-1" />
-                  Новеллы
-                </Button>
-              </div>
-            </div>
-            <nav className="hidden md:flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/catalog')}
-              >
-                Каталог
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/recommendations')}
-                className="gap-1"
-              >
-                <Icon name="Sparkles" size={14} />
-                Рекомендации
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/schedule')}
-              >
-                Расписание
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/translator-guide')}
-                className="gap-1"
-              >
-                <Icon name="Briefcase" size={14} />
-                Для переводчиков
-              </Button>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="hidden md:block w-64">
-              <SearchWithAutocomplete placeholder="Поиск манхв..." />
-            </div>
-            
-            <div className="hidden lg:flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/upload')}
-                className="gap-2"
-              >
-                <Icon name="Upload" size={16} />
-                Загрузить
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/teams')}
-                className="gap-2"
-              >
-                <Icon name="Users" size={16} />
-                Команды
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/schedule')}
-                className="gap-2"
-              >
-                <Icon name="Calendar" size={16} />
-                Расписание
-              </Button>
-            </div>
-            
-            <NotificationBell />
-            
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
-            </Button>
-
-            <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
-              <Icon name="User" size={20} />
-            </Button>
-
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
-              <Icon name="Settings" size={20} />
-            </Button>
-          </div>
-        </div>
-
-        <div className="md:hidden border-t">
-          <div className="container px-4 py-2">
-            <SearchWithAutocomplete placeholder="Поиск манхв..." />
-          </div>
-        </div>
-      </header>
+      <IndexHeader
+        theme={theme}
+        contentType={contentType}
+        onThemeToggle={toggleTheme}
+        onContentTypeChange={setContentType}
+      />
 
       <main className="container px-4 py-8 pb-24 lg:pb-8 space-y-12">
-        <section className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6 border">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <Icon name="SlidersHorizontal" size={24} />
-              Фильтры
-            </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              {showFilters ? 'Скрыть' : 'Показать'}
-            </Button>
-          </div>
-          
-          {showFilters && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold mb-2">Жанры</h3>
-                <div className="flex flex-wrap gap-2">
-                  {GENRES.map((genre) => (
-                    <Badge
-                      key={genre}
-                      variant={selectedGenres.includes(genre) ? 'default' : 'outline'}
-                      className="cursor-pointer"
-                      onClick={() => toggleGenre(genre)}
-                    >
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Тип</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {TYPE_FILTERS.map((type) => (
-                      <Badge
-                        key={type.value}
-                        variant={selectedType === type.value ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedType(type.value)}
-                      >
-                        {type.label}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Статус</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {STATUS_FILTERS.map((status) => (
-                      <Badge
-                        key={status.value}
-                        variant={selectedStatus === status.value ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedStatus(status.value)}
-                      >
-                        {status.label}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              {(selectedGenres.length > 0 || selectedType !== 'all' || selectedStatus !== 'all') && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedGenres([]);
-                    setSelectedType('all');
-                    setSelectedStatus('all');
-                  }}
-                >
-                  Сбросить фильтры
-                </Button>
-              )}
-            </div>
-          )}
-        </section>
+        <IndexFilters
+          selectedGenres={selectedGenres}
+          selectedType={selectedType}
+          selectedStatus={selectedStatus}
+          showFilters={showFilters}
+          onGenreToggle={toggleGenre}
+          onTypeChange={setSelectedType}
+          onStatusChange={setSelectedStatus}
+          onShowFiltersToggle={() => setShowFilters(!showFilters)}
+          onReset={() => {
+            setSelectedGenres([]);
+            setSelectedType('all');
+            setSelectedStatus('all');
+          }}
+        />
 
         {(searchQuery || selectedGenres.length > 0 || selectedType !== 'all' || selectedStatus !== 'all') ? (
           <section>
@@ -435,375 +220,29 @@ export default function Index() {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {filteredManhwa.map((manhwa) => (
-                <Card 
-                  key={manhwa.id} 
-                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                  onClick={() => navigate(`/reader/${manhwa.id}`)}
-                >
-                  <div className="aspect-[3/4] relative overflow-hidden">
-                    <img
-                      src={manhwa.cover}
-                      alt={manhwa.title}
-                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 right-2 flex flex-col gap-1">
-                      <Button
-                        size="icon"
-                        variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                        className="h-8 w-8"
-                        onClick={(e) => toggleBookmark(manhwa.id, e)}
-                      >
-                        <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                      </Button>
-                      <Badge variant="destructive" className="text-xs font-bold">
-                        <Icon name="Star" size={12} className="mr-1" />
-                        {manhwa.rating}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <CardContent className="p-3">
-                    <h3 className="font-semibold text-sm line-clamp-2 min-h-[40px]">
-                      {manhwa.title}
-                    </h3>
-                  </CardContent>
-                </Card>
+                <ManhwaCard
+                  key={manhwa.id}
+                  manhwa={manhwa}
+                  isBookmarked={bookmarks.has(manhwa.id)}
+                  variant="default"
+                  onCardClick={() => navigate(`/reader/${manhwa.id}`)}
+                  onBookmarkToggle={(e) => toggleBookmark(manhwa.id, e)}
+                />
               ))}
             </div>
           </section>
         ) : (
-          <>
-            <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold flex items-center gap-3">
-                  <Icon name="TrendingUp" size={32} className="text-primary" />
-                  Популярные тайтлы
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {popularManhwa.map((manhwa) => (
-                  <Card 
-                    key={manhwa.id} 
-                    className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate(`/manhwa/${manhwa.id}`)}
-                  >
-                    <div className="aspect-[3/4] relative overflow-hidden">
-                      <img
-                        src={manhwa.cover}
-                        alt={manhwa.title}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 right-2 flex flex-col gap-1">
-                        <Button
-                          size="icon"
-                          variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                          className="h-8 w-8"
-                          onClick={(e) => toggleBookmark(manhwa.id, e)}
-                        >
-                          <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                        </Button>
-                        <Badge variant="destructive" className="text-xs font-bold">
-                          <Icon name="Star" size={12} className="mr-1" />
-                          {manhwa.rating}
-                        </Badge>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="font-bold text-white text-lg mb-2 line-clamp-2">
-                          {manhwa.title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-white/90 text-sm">
-                          <Icon name="Eye" size={14} />
-                          <span>{manhwa.views.toLocaleString()}</span>
-                          <span className="mx-2">•</span>
-                          <Icon name="BookText" size={14} />
-                          <span>{manhwa.chapters} гл.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <Icon name="Clock" size={28} className="text-green-500" />
-                  Недавно обновлённые
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                {recentlyUpdated.map((manhwa) => (
-                  <Card 
-                    key={manhwa.id} 
-                    className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate(`/reader/${manhwa.id}`)}
-                  >
-                    <div className="aspect-[3/4] relative overflow-hidden">
-                      <img
-                        src={manhwa.cover}
-                        alt={manhwa.title}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Button
-                          size="icon"
-                          variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                          className="h-8 w-8"
-                          onClick={(e) => toggleBookmark(manhwa.id, e)}
-                        >
-                          <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                        </Button>
-                      </div>
-                      <Badge className="absolute top-2 left-2 bg-green-600 text-white text-xs">
-                        <Icon name="Sparkles" size={10} className="mr-1" />
-                        NEW
-                      </Badge>
-                    </div>
-                    
-                    <CardContent className="p-2">
-                      <h3 className="font-semibold text-xs line-clamp-2">
-                        {manhwa.title}
-                      </h3>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <Icon name="Flame" size={28} className="text-orange-500" />
-                  Сейчас читают
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                {currentlyReading.map((manhwa) => (
-                  <Card 
-                    key={manhwa.id} 
-                    className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate(`/reader/${manhwa.id}`)}
-                  >
-                    <div className="aspect-[3/4] relative overflow-hidden">
-                      <img
-                        src={manhwa.cover}
-                        alt={manhwa.title}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-2 right-2 flex flex-col gap-1">
-                        <Button
-                          size="icon"
-                          variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                          className="h-8 w-8"
-                          onClick={(e) => toggleBookmark(manhwa.id, e)}
-                        >
-                          <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                        </Button>
-                        <Badge variant="destructive" className="text-xs font-bold">
-                          <Icon name="Star" size={12} className="mr-1" />
-                          {manhwa.rating}
-                        </Badge>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Button
-                        size="sm"
-                        className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/reader/${manhwa.id}`);
-                        }}
-                      >
-                        <Icon name="BookOpen" size={16} />
-                        Читать
-                      </Button>
-                    </div>
-                    
-                    <CardContent className="p-3">
-                      <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
-                        {manhwa.title}
-                      </h3>
-                      
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {manhwa.genre.slice(0, 2).map((genre) => (
-                          <Badge key={genre} variant="secondary" className="text-xs">
-                            {genre}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Icon name="BookText" size={14} />
-                          <span>{manhwa.chapters} гл.</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Icon name="Eye" size={14} />
-                          <span>{manhwa.views}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
-
-            <section className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-8 border border-primary/20">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold flex items-center gap-3">
-                    <Icon name="Sparkles" size={28} className="text-primary" />
-                    Рекомендации для вас
-                  </h2>
-                  <p className="text-muted-foreground mt-1">
-                    Персональные подборки на основе ваших предпочтений
-                  </p>
-                </div>
-                <Button onClick={() => navigate('/recommendations')} className="gap-2">
-                  Все рекомендации
-                  <Icon name="ArrowRight" size={16} />
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {currentlyReading.slice(0, 5).map((manhwa) => (
-                  <Card 
-                    key={manhwa.id} 
-                    className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate(`/manhwa/${manhwa.id}`)}
-                  >
-                    <div className="aspect-[2/3] relative overflow-hidden">
-                      <img
-                        src={manhwa.cover}
-                        alt={manhwa.title}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <Badge className="absolute top-2 right-2 bg-green-600 text-white text-xs">
-                        95% совпадение
-                      </Badge>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                    
-                    <CardContent className="p-3">
-                      <h3 className="font-semibold text-sm line-clamp-2 mb-1">
-                        {manhwa.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Icon name="Sparkles" size={10} />
-                        Похоже на ваши любимые
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
-          </>
+          <IndexSections
+            popularManhwa={popularManhwa}
+            recentlyUpdated={recentlyUpdated}
+            currentlyReading={currentlyReading}
+            bookmarks={bookmarks}
+            onBookmarkToggle={toggleBookmark}
+          />
         )}
       </main>
 
-      <footer className="bg-card border-t mt-16">
-        <div className="container px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-primary">MANHWA READER</h3>
-              <p className="text-sm text-muted-foreground">
-                Лучший сервис для чтения манхвы, манги и маньхуа онлайн
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-3">Каталог</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/catalog')}>Все тайтлы</li>
-                <li className="hover:text-primary cursor-pointer">Популярное</li>
-                <li className="hover:text-primary cursor-pointer">Новинки</li>
-                <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/schedule')}>Расписание</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-3">Сообщество</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/teams')}>Команды переводчиков</li>
-                <li className="hover:text-primary cursor-pointer" onClick={() => navigate('/upload')}>Загрузить тайтл</li>
-                <li className="hover:text-primary cursor-pointer">Правила</li>
-                <li className="hover:text-primary cursor-pointer">FAQ</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-3">Поддержка</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-primary cursor-pointer">Донат</li>
-                <li className="hover:text-primary cursor-pointer">Связаться</li>
-                <li className="hover:text-primary cursor-pointer">Реклама</li>
-                <li className="hover:text-primary cursor-pointer">API</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2024 MANHWA READER. Платформа для фан-переводов.</p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <span className="hover:text-primary cursor-pointer" onClick={() => navigate('/terms')}>
-                Пользовательское соглашение
-              </span>
-              <span className="hover:text-primary cursor-pointer" onClick={() => navigate('/dmca')}>
-                DMCA / Авторские права
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
-      
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t">
-        <div className="grid grid-cols-5 h-16">
-          <button
-            onClick={() => navigate('/')}
-            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
-          >
-            <Icon name="Home" size={20} />
-            <span className="text-xs">Главная</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/catalog')}
-            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
-          >
-            <Icon name="BookOpen" size={20} />
-            <span className="text-xs">Каталог</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/schedule')}
-            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
-          >
-            <Icon name="Calendar" size={20} />
-            <span className="text-xs">Расписание</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/teams')}
-            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
-          >
-            <Icon name="Users" size={20} />
-            <span className="text-xs">Команды</span>
-          </button>
-          
-          <button
-            onClick={() => navigate('/upload')}
-            className="flex flex-col items-center justify-center gap-1 hover:bg-accent transition-colors"
-          >
-            <Icon name="Upload" size={20} />
-            <span className="text-xs">Загрузить</span>
-          </button>
-        </div>
-      </nav>
-      
+      <IndexFooter />
       <ScrollToTop />
     </div>
   );
