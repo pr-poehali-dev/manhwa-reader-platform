@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import CatalogHeader from '@/components/catalog/CatalogHeader';
+import CatalogFilters from '@/components/catalog/CatalogFilters';
+import CatalogGrid from '@/components/catalog/CatalogGrid';
+import CatalogPagination from '@/components/catalog/CatalogPagination';
 
 interface Manhwa {
   id: number;
@@ -29,41 +22,6 @@ interface Manhwa {
 
 const API_URL = 'https://functions.poehali.dev/4e8cb1b6-88f9-43e5-89db-ab75bfa82345';
 const BOOKMARKS_API = 'https://functions.poehali.dev/64b9299a-9048-4727-b686-807ace50e7e1';
-
-const GENRES = [
-  'Боевик', 'Романтика', 'Фэнтези', 'Драма', 'Комедия',
-  'Приключения', 'Психология', 'Школа', 'Сёнэн', 'Сёдзё',
-  'Сэйнэн', 'Повседневность', 'Меха', 'Ужасы', 'Детектив',
-  'Спорт', 'Музыка', 'Игры', 'Научная фантастика', 'Триллер'
-];
-
-const TYPE_FILTERS = [
-  { label: 'Все типы', value: 'all' },
-  { label: 'Манхва', value: 'manhwa' },
-  { label: 'Манга', value: 'manga' },
-  { label: 'Маньхуа', value: 'manhua' },
-  { label: 'Западный комикс', value: 'comic' },
-  { label: 'Рукомикс', value: 'russian' }
-];
-
-const STATUS_FILTERS = [
-  { label: 'Все статусы', value: 'all' },
-  { label: 'Онгоинг', value: 'ongoing' },
-  { label: 'Завершён', value: 'completed' },
-  { label: 'Заморожен', value: 'frozen' },
-  { label: 'Заброшен', value: 'abandoned' }
-];
-
-const SORT_OPTIONS = [
-  { label: 'По рейтингу', value: 'rating' },
-  { label: 'По просмотрам', value: 'views' },
-  { label: 'По названию', value: 'title' },
-  { label: 'По дате обновления', value: 'updated' },
-  { label: 'По году выпуска', value: 'year' },
-  { label: 'По количеству глав', value: 'chapters' }
-];
-
-const YEARS = Array.from({ length: 30 }, (_, i) => 2024 - i);
 
 const getUserId = () => {
   let userId = localStorage.getItem('manhwa_user_id');
@@ -89,7 +47,6 @@ export default function Catalog() {
   const [showFilters, setShowFilters] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -245,32 +202,9 @@ export default function Catalog() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 7;
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 4) {
-        for (let i = 1; i <= 5; i++) pages.push(i);
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    return pages;
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1);
   };
 
   if (loading) {
@@ -283,169 +217,33 @@ export default function Catalog() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-              <Icon name="ArrowLeft" size={20} />
-            </Button>
-            <h1 className="text-2xl font-bold text-primary">Каталог манхвы</h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="relative hidden md:block">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Поиск по названию..."
-                className="w-64 pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <CatalogHeader
+        theme={theme}
+        searchQuery={searchQuery}
+        onThemeToggle={toggleTheme}
+        onSearchChange={setSearchQuery}
+      />
 
       <main className="container px-4 py-6">
         <div className="grid lg:grid-cols-[280px_1fr] gap-6">
           <aside className={`space-y-4 ${!showFilters && 'hidden lg:block'}`}>
-            <Card className="sticky top-20">
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-bold text-lg flex items-center gap-2">
-                    <Icon name="SlidersHorizontal" size={20} />
-                    Фильтры
-                  </h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetFilters}
-                    className="text-xs"
-                  >
-                    Сбросить
-                  </Button>
-                </div>
-
-                <div className="md:hidden">
-                  <div className="relative">
-                    <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Поиск..."
-                      className="w-full pl-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">Сортировка</label>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SORT_OPTIONS.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">Тип</label>
-                  <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TYPE_FILTERS.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">Статус</label>
-                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUS_FILTERS.map(status => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">Год выпуска</label>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Все года" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все года</SelectItem>
-                      {YEARS.map(year => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">
-                    Минимальный рейтинг: {minRating}
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="0.5"
-                    value={minRating}
-                    onChange={(e) => setMinRating(parseFloat(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>0</span>
-                    <span>5</span>
-                    <span>10</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">
-                    Жанры ({selectedGenres.length})
-                  </label>
-                  <div className="flex flex-wrap gap-1 max-h-64 overflow-y-auto">
-                    {GENRES.map(genre => (
-                      <Badge
-                        key={genre}
-                        variant={selectedGenres.includes(genre) ? 'default' : 'outline'}
-                        className="cursor-pointer text-xs"
-                        onClick={() => toggleGenre(genre)}
-                      >
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <CatalogFilters
+              searchQuery={searchQuery}
+              selectedGenres={selectedGenres}
+              selectedType={selectedType}
+              selectedStatus={selectedStatus}
+              selectedYear={selectedYear}
+              sortBy={sortBy}
+              minRating={minRating}
+              onSearchChange={setSearchQuery}
+              onGenreToggle={toggleGenre}
+              onTypeChange={setSelectedType}
+              onStatusChange={setSelectedStatus}
+              onYearChange={setSelectedYear}
+              onSortChange={setSortBy}
+              onRatingChange={setMinRating}
+              onReset={resetFilters}
+            />
           </aside>
 
           <div className="space-y-4">
@@ -464,215 +262,36 @@ export default function Catalog() {
               </Button>
             </div>
 
-            {selectedGenres.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-muted-foreground">Активные жанры:</span>
-                {selectedGenres.map(genre => (
-                  <Badge
-                    key={genre}
-                    variant="default"
-                    className="cursor-pointer"
-                    onClick={() => toggleGenre(genre)}
-                  >
-                    {genre}
-                    <Icon name="X" size={12} className="ml-1" />
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <CatalogPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              itemsPerPage={itemsPerPage}
+              totalItems={sortedManhwa.length}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="text-sm text-muted-foreground">
-                Показано {startIndex + 1}-{Math.min(endIndex, sortedManhwa.length)} из {sortedManhwa.length}
-                <span className="ml-2 hidden sm:inline">•</span>
-                <span className="sm:ml-2 block sm:inline">Страница {currentPage} из {totalPages}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">На странице:</span>
-                <Select 
-                  value={itemsPerPage.toString()} 
-                  onValueChange={(value) => {
-                    setItemsPerPage(parseInt(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[100px] h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <CatalogGrid
+              manhwaList={paginatedManhwa}
+              bookmarks={bookmarks}
+              selectedGenres={selectedGenres}
+              onBookmarkToggle={toggleBookmark}
+              onGenreToggle={toggleGenre}
+              onResetFilters={resetFilters}
+            />
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {paginatedManhwa.map((manhwa) => (
-                <Card 
-                  key={manhwa.id} 
-                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
-                  onClick={() => navigate(`/manhwa/${manhwa.id}`)}
-                >
-                  <div className="aspect-[3/4] relative overflow-hidden">
-                    <img
-                      src={manhwa.cover}
-                      alt={manhwa.title}
-                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 right-2 flex flex-col gap-1">
-                      <Button
-                        size="icon"
-                        variant={bookmarks.has(manhwa.id) ? 'default' : 'secondary'}
-                        className="h-8 w-8"
-                        onClick={(e) => toggleBookmark(manhwa.id, e)}
-                      >
-                        <Icon name={bookmarks.has(manhwa.id) ? 'BookmarkCheck' : 'Bookmark'} size={16} />
-                      </Button>
-                      <Badge variant="destructive" className="text-xs font-bold">
-                        <Icon name="Star" size={12} className="mr-1" />
-                        {manhwa.rating}
-                      </Badge>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Button
-                      size="sm"
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/reader/${manhwa.id}`);
-                      }}
-                    >
-                      <Icon name="BookOpen" size={16} />
-                      Читать
-                    </Button>
-                  </div>
-                  
-                  <CardContent className="p-3">
-                    <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
-                      {manhwa.title}
-                    </h3>
-                    
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {manhwa.genre.slice(0, 2).map((genre) => (
-                        <Badge key={genre} variant="secondary" className="text-xs">
-                          {genre}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Icon name="BookText" size={14} />
-                        <span>{manhwa.chapters} гл.</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon name="Eye" size={14} />
-                        <span>{manhwa.views}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {sortedManhwa.length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Icon name="SearchX" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h3 className="text-xl font-bold mb-2">Ничего не найдено</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Попробуйте изменить параметры фильтрации
-                  </p>
-                  <Button onClick={resetFilters}>
-                    Сбросить фильтры
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {totalPages > 1 && sortedManhwa.length > 0 && (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(1)}
-                      disabled={currentPage === 1}
-                    >
-                      <Icon name="ChevronsLeft" size={16} />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                    >
-                      <Icon name="ChevronLeft" size={16} />
-                    </Button>
-
-                    {getPageNumbers().map((page, index) => (
-                      page === '...' ? (
-                        <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
-                          ...
-                        </span>
-                      ) : (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => handlePageChange(page as number)}
-                          className="min-w-[40px]"
-                        >
-                          {page}
-                        </Button>
-                      )
-                    ))}
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                    >
-                      <Icon name="ChevronRight" size={16} />
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePageChange(totalPages)}
-                      disabled={currentPage === totalPages}
-                    >
-                      <Icon name="ChevronsRight" size={16} />
-                    </Button>
-                  </div>
-
-                  <div className="text-center mt-3 text-sm text-muted-foreground">
-                    Перейти на страницу:{' '}
-                    <Input
-                      type="number"
-                      min={1}
-                      max={totalPages}
-                      value={currentPage}
-                      onChange={(e) => {
-                        const page = parseInt(e.target.value);
-                        if (page >= 1 && page <= totalPages) {
-                          handlePageChange(page);
-                        }
-                      }}
-                      className="inline-block w-20 h-8 text-center mx-2"
-                    />
-                    из {totalPages}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <CatalogPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              itemsPerPage={itemsPerPage}
+              totalItems={sortedManhwa.length}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           </div>
         </div>
       </main>
