@@ -139,18 +139,18 @@ export default function UploadManhwa() {
       </header>
 
       <main className="container max-w-2xl px-4 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Upload" size={24} />
-              Добавить новый тайтл
-            </CardTitle>
-            <CardDescription>
-              Заполните информацию о манхве. После модерации она появится в каталоге
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Upload" size={24} />
+                Добавить новый тайтл
+              </CardTitle>
+              <CardDescription>
+                Заполните информацию о манхве. После модерации она появится в каталоге
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title">
                   Название <span className="text-destructive">*</span>
@@ -399,9 +399,9 @@ export default function UploadManhwa() {
                   )}
                 </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </form>
       </main>
     </div>
   );
