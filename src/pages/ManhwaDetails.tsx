@@ -269,6 +269,20 @@ export default function ManhwaDetails() {
                 {MOCK_MANHWA.alternativeTitles.join(' / ')}
               </p>
 
+              <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" size={18} className="text-amber-600 dark:text-amber-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
+                      Фанатский перевод
+                    </p>
+                    <p className="text-xs text-amber-800 dark:text-amber-400 mt-1">
+                      Это неофициальный перевод, выполненный энтузиастами. Не является официальным изданием.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 <div className="flex items-center gap-2">
                   <Icon name="Star" size={24} className="text-yellow-500" />

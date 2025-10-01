@@ -747,10 +747,14 @@ export default function Index() {
           </div>
           
           <div className="border-t mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2024 MANHWA READER. Все права защищены.</p>
-            <div className="flex gap-4">
-              <span className="hover:text-primary cursor-pointer">Политика конфиденциальности</span>
-              <span className="hover:text-primary cursor-pointer">Пользовательское соглашение</span>
+            <p>© 2024 MANHWA READER. Платформа для фан-переводов.</p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <span className="hover:text-primary cursor-pointer" onClick={() => navigate('/terms')}>
+                Пользовательское соглашение
+              </span>
+              <span className="hover:text-primary cursor-pointer" onClick={() => navigate('/dmca')}>
+                DMCA / Авторские права
+              </span>
             </div>
           </div>
         </div>

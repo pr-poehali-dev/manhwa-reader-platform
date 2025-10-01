@@ -11,6 +11,8 @@ import NovelReader from "./pages/NovelReader";
 import NovelCatalog from "./pages/NovelCatalog";
 import UploadNovel from "./pages/UploadNovel";
 import TranslatorGuide from "./pages/TranslatorGuide";
+import DMCA from "./pages/DMCA";
+import Terms from "./pages/Terms";
 import Reader from "./pages/Reader";
 import ManhwaDetails from "./pages/ManhwaDetails";
 import Admin from "./pages/Admin";
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/novel-reader/:novelId/:chapterNumber" element={<NovelReader />} />
           <Route path="/upload-novel" element={<UploadNovel />} />
           <Route path="/translator-guide" element={<TranslatorGuide />} />
+          <Route path="/dmca" element={<DMCA />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/manhwa/:id" element={<ManhwaDetails />} />
           <Route path="/reader/:id" element={<Reader />} />
           <Route path="/admin" element={<Admin />} />
