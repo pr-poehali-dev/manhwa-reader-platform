@@ -13,6 +13,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const UPLOAD_BY_URL_API = 'https://functions.poehali.dev/13fb9333-8228-419c-87f0-3814e0eb716f';
 
@@ -31,10 +48,33 @@ export default function UploadByUrl({ manhwaId, onSuccess }: UploadByUrlProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { toast } = useToast();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const imageFiles = files.filter(f => f.type.startsWith('image/'));
     setSelectedFiles(imageFiles);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setSelectedFiles((items) => {
+        const oldIndex = items.findIndex((_, i) => i.toString() === active.id);
+        const newIndex = items.findIndex((_, i) => i.toString() === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -223,25 +263,34 @@ export default function UploadByUrl({ manhwaId, onSuccess }: UploadByUrlProps) {
               {selectedFiles.length > 0 && (
                 <div className="border rounded-lg p-3 bg-muted/30">
                   <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Icon name="Eye" size={16} />
-                    Предпросмотр страниц:
+                    <Icon name="GripVertical" size={16} />
+                    Предпросмотр и сортировка:
                   </p>
-                  <div className="grid grid-cols-4 gap-2 max-h-[300px] overflow-y-auto">
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Страница ${index + 1}`}
-                          className="w-full h-24 object-cover rounded border hover:ring-2 ring-primary transition-all"
-                        />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">#{index + 1}</span>
-                        </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={selectedFiles.map((_, i) => i.toString())}
+                      strategy={rectSortingStrategy}
+                    >
+                      <div className="grid grid-cols-4 gap-2 max-h-[300px] overflow-y-auto p-1">
+                        {selectedFiles.map((file, index) => (
+                          <SortableImageItem
+                            key={index}
+                            id={index.toString()}
+                            file={file}
+                            index={index}
+                            onRemove={() => removeFile(index)}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    💡 Порядок файлов определяет порядок страниц в главе
+                    </SortableContext>
+                  </DndContext>
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Icon name="Info" size={12} />
+                    Перетащите картинки для изменения порядка страниц
                   </p>
                 </div>
               )}
@@ -319,5 +368,61 @@ export default function UploadByUrl({ manhwaId, onSuccess }: UploadByUrlProps) {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface SortableImageItemProps {
+  id: string;
+  file: File;
+  index: number;
+  onRemove: () => void;
+}
+
+function SortableImageItem({ id, file, index, onRemove }: SortableImageItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`relative group cursor-move ${isDragging ? 'z-50' : ''}`}
+      {...attributes}
+      {...listeners}
+    >
+      <img
+        src={URL.createObjectURL(file)}
+        alt={`Страница ${index + 1}`}
+        className="w-full h-24 object-cover rounded border hover:ring-2 ring-primary transition-all"
+      />
+      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+        <span className="text-white text-xs font-bold">#{index + 1}</span>
+      </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
+      >
+        <Icon name="X" size={12} />
+      </button>
+      <div className="absolute top-1 left-1 bg-black/70 text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+        <Icon name="GripVertical" size={10} className="inline" />
+      </div>
+    </div>
   );
 }
