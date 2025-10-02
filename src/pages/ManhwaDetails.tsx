@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import UploadByUrl from '@/components/UploadByUrl';
+import BulkUploadChapters from '@/components/BulkUploadChapters';
 import {
   Select,
   SelectContent,
@@ -367,7 +368,12 @@ export default function ManhwaDetails() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chapters">
+          <TabsContent value="chapters" className="space-y-4">
+            <div className="flex gap-2">
+              <UploadByUrl manhwaId={Number(id)} />
+              <BulkUploadChapters manhwaId={Number(id)} />
+            </div>
+            
             <Card>
               <CardContent className="p-0">
                 <div className="divide-y">
