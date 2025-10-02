@@ -147,10 +147,6 @@ export default function Teams() {
                     {user && team.creator_id === user.id && (
                       <EditTeam team={team} onSuccess={fetchTeams} />
                     )}
-                        <Icon name="MessageCircle" size={14} />
-                        Discord
-                      </Button>
-                    )}
                   </div>
                 </CardContent>
               </Card>
