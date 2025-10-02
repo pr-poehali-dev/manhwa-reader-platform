@@ -188,6 +188,22 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
     ));
   };
 
+  const handleBatchRename = () => {
+    const template = prompt('Введите шаблон для названий (\nИспользуйте {n} для номера главы)\n\nПримеры:\n- Глава {n} - Начало\n- Chapter {n}: The Journey\n- Арк 1, Глава {n}', 'Глава {n}');
+    
+    if (template) {
+      setChapters(prev => prev.map(ch => ({
+        ...ch,
+        title: template.replace('{n}', ch.number.toString())
+      })));
+      
+      toast({
+        title: 'Названия обновлены',
+        description: `Применен шаблон к ${chapters.length} главам`,
+      });
+    }
+  };
+
   const resetUpload = () => {
     setChapters([]);
     setCurrentUpload(0);
@@ -286,15 +302,27 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
                   <p className="text-sm font-medium">
                     Обнаружено глав: {chapters.length}
                   </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetUpload}
-                    disabled={uploading}
-                  >
-                    <Icon name="RotateCcw" size={14} className="mr-1" />
-                    Сбросить
-                  </Button>
+                  <div className="flex gap-1">
+                    {!uploading && chapters.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleBatchRename}
+                      >
+                        <Icon name="Type" size={14} className="mr-1" />
+                        Переименовать все
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetUpload}
+                      disabled={uploading}
+                    >
+                      <Icon name="RotateCcw" size={14} className="mr-1" />
+                      Сбросить
+                    </Button>
+                  </div>
                 </div>
 
                 {uploading && (
@@ -336,7 +364,7 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
                             )}
                           </div>
 
-                          {!uploading && chapter.status === 'pending' && (
+                          {!uploading && (chapter.status === 'pending' || chapter.status === 'success' || chapter.status === 'error') && (
                             <div className="flex gap-1">
                               <Popover>
                                 <PopoverTrigger asChild>

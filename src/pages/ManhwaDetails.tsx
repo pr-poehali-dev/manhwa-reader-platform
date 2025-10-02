@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import UploadByUrl from '@/components/UploadByUrl';
 import BulkUploadChapters from '@/components/BulkUploadChapters';
+import EditChapter from '@/components/EditChapter';
 import {
   Select,
   SelectContent,
@@ -380,10 +381,12 @@ export default function ManhwaDetails() {
                   {MOCK_CHAPTERS.map((chapter) => (
                     <div
                       key={chapter.id}
-                      className="flex items-center justify-between p-4 hover:bg-accent cursor-pointer transition-colors"
-                      onClick={() => navigate(`/reader/${id}?chapter=${chapter.number}`)}
+                      className="flex items-center justify-between p-4 hover:bg-accent transition-colors group"
                     >
-                      <div>
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => navigate(`/reader/${id}?chapter=${chapter.number}`)}
+                      >
                         <p className="font-semibold">{chapter.title}</p>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                           <span className="flex items-center gap-1">
@@ -396,7 +399,22 @@ export default function ManhwaDetails() {
                           </span>
                         </div>
                       </div>
-                      <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+                      <div className="flex items-center gap-2">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                          <EditChapter
+                            chapterId={chapter.id}
+                            currentNumber={chapter.number}
+                            currentTitle={chapter.title}
+                            currentPages={[
+                              'https://picsum.photos/seed/ch1p1/800/1200',
+                              'https://picsum.photos/seed/ch1p2/800/1200',
+                              'https://picsum.photos/seed/ch1p3/800/1200',
+                            ]}
+                            manhwaId={Number(id)}
+                          />
+                        </div>
+                        <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+                      </div>
                     </div>
                   ))}
                 </div>
