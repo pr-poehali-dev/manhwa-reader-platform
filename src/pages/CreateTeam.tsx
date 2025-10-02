@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import { useAuth } from '@/contexts/AuthContext';
+import { mockTeamsAPI } from '@/lib/mockTeams';
+import { useToast } from '@/hooks/use-toast';
 
 const UPLOADS_API = 'https://functions.poehali.dev/80df506b-6764-4bb1-a3ad-652c4be9e920';
 
@@ -21,38 +24,59 @@ const getUserId = () => {
 export default function CreateTeam() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    logo_url: '',
-    website_url: '',
-    discord_url: ''
+    avatar_url: ''
   });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт для создания команды',
+        variant: 'destructive'
+      });
+      navigate('/teams');
+    }
+  }, [isAuthenticated, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: 'Ошибка',
+        description: 'Необходима авторизация',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      const response = await fetch(`${UPLOADS_API}?resource=teams`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': getUserId()
-        },
-        body: JSON.stringify(formData)
+      const team = await mockTeamsAPI.createTeam(
+        formData.name,
+        formData.description,
+        formData.avatar_url,
+        user
+      );
+
+      toast({
+        title: 'Успешно!',
+        description: `Команда "${team.name}" создана`,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate('/teams');
-      } else {
-        alert(data.error || 'Ошибка при создании команды');
-      }
-    } catch (error) {
-      console.error('Error creating team:', error);
-      alert('Ошибка при создании команды');
+      
+      navigate('/teams');
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось создать команду',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
@@ -113,29 +137,29 @@ export default function CreateTeam() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="logo_url">Ссылка на логотип</Label>
+                <Label htmlFor="avatar_url">Ссылка на аватар</Label>
                 <Input
-                  id="logo_url"
+                  id="avatar_url"
                   type="url"
-                  value={formData.logo_url}
-                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                  placeholder="https://example.com/logo.png"
+                  value={formData.avatar_url}
+                  onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                  placeholder="https://example.com/avatar.png"
                 />
+                {formData.avatar_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.avatar_url} 
+                      alt="Preview" 
+                      className="w-20 h-20 rounded-lg object-cover border"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://api.dicebear.com/7.x/shapes/svg?seed=' + formData.name;
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="website_url">Сайт команды</Label>
-                <Input
-                  id="website_url"
-                  type="url"
-                  value={formData.website_url}
-                  onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                  placeholder="https://yourteam.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="discord_url">Discord сервер</Label>
+              <div className="space-y-2 hidden">
                 <Input
                   id="discord_url"
                   type="url"

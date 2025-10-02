@@ -3,6 +3,16 @@ import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import NotificationBell from '@/components/NotificationBell';
 import SearchWithAutocomplete from '@/components/SearchWithAutocomplete';
+import AuthDialog from '@/components/AuthDialog';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface IndexHeaderProps {
   theme: 'light' | 'dark';
@@ -18,6 +28,7 @@ export default function IndexHeader({
   onContentTypeChange 
 }: IndexHeaderProps) {
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -115,6 +126,40 @@ export default function IndexHeader({
               <Icon name="Users" size={16} />
               Команды
             </Button>
+            
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Icon name="User" size={16} />
+                    {user?.username}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <Icon name="User" size={14} className="mr-2" />
+                    Профиль
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/teams')}>
+                    <Icon name="Users" size={14} className="mr-2" />
+                    Мои команды
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/achievements')}>
+                    <Icon name="Trophy" size={14} className="mr-2" />
+                    Достижения
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                    <Icon name="LogOut" size={14} className="mr-2" />
+                    Выйти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <AuthDialog />
+            )}
             
             <Button
               variant="outline"

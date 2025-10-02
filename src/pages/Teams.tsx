@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { mockTeamsAPI, Team as MockTeam } from '@/lib/mockTeams';
+import { useAuth } from '@/contexts/AuthContext';
+import EditTeam from '@/components/EditTeam';
+import AuthDialog from '@/components/AuthDialog';
 
 const UPLOADS_API = 'https://functions.poehali.dev/80df506b-6764-4bb1-a3ad-652c4be9e920';
 
@@ -22,8 +26,9 @@ interface Team {
 
 export default function Teams() {
   const navigate = useNavigate();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<MockTeam[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchTeams();
@@ -31,14 +36,20 @@ export default function Teams() {
 
   const fetchTeams = async () => {
     try {
-      const response = await fetch(`${UPLOADS_API}?resource=teams`);
-      const data = await response.json();
+      const data = await mockTeamsAPI.getTeams();
       setTeams(data.teams || []);
     } catch (error) {
       console.error('Error fetching teams:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCreateTeam = () => {
+    if (!isAuthenticated) {
+      return;
+    }
+    navigate('/create-team');
   };
 
   return (
@@ -54,14 +65,23 @@ export default function Teams() {
             Назад
           </Button>
           <h1 className="text-xl font-bold">Команды переводчиков</h1>
-          <Button
-            onClick={() => navigate('/create-team')}
-            size="sm"
-            className="gap-2"
-          >
-            <Icon name="Plus" size={16} />
-            Создать
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              onClick={handleCreateTeam}
+              size="sm"
+              className="gap-2"
+            >
+              <Icon name="Plus" size={16} />
+              Создать
+            </Button>
+          ) : (
+            <AuthDialog trigger={
+              <Button size="sm" className="gap-2">
+                <Icon name="Plus" size={16} />
+                Создать
+              </Button>
+            } />
+          )}
         </div>
       </header>
 
@@ -92,11 +112,14 @@ export default function Teams() {
               <Card key={team.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    {team.logo_url ? (
+                    {team.avatar_url ? (
                       <img
-                        src={team.logo_url}
+                        src={team.avatar_url}
                         alt={team.name}
                         className="w-16 h-16 rounded-lg object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://api.dicebear.com/7.x/shapes/svg?seed=' + team.name;
+                        }}
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -108,11 +131,7 @@ export default function Teams() {
                       <div className="flex gap-2 mb-3">
                         <Badge variant="secondary" className="text-xs">
                           <Icon name="Users" size={12} className="mr-1" />
-                          {team.member_count}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          <Icon name="BookOpen" size={12} className="mr-1" />
-                          {team.manhwa_count}
+                          {team.member_count || 0}
                         </Badge>
                       </div>
                     </div>
@@ -125,24 +144,9 @@ export default function Teams() {
                   )}
 
                   <div className="flex gap-2 mt-4">
-                    {team.website_url && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(team.website_url, '_blank')}
-                        className="gap-1"
-                      >
-                        <Icon name="Globe" size={14} />
-                        Сайт
-                      </Button>
+                    {user && team.creator_id === user.id && (
+                      <EditTeam team={team} onSuccess={fetchTeams} />
                     )}
-                    {team.discord_url && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(team.discord_url, '_blank')}
-                        className="gap-1"
-                      >
                         <Icon name="MessageCircle" size={14} />
                         Discord
                       </Button>
