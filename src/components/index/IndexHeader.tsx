@@ -76,6 +76,15 @@ export default function IndexHeader({
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => navigate('/leaderboard')}
+              className="gap-1"
+            >
+              <Icon name="Trophy" size={14} />
+              Рейтинг
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate('/recommendations')}
               className="gap-1"
             >

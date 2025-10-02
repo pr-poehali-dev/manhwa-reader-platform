@@ -25,6 +25,7 @@ import Catalog from "./pages/Catalog";
 import Profile from "./pages/Profile";
 import Achievements from "./pages/Achievements";
 import Recommendations from "./pages/Recommendations";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
