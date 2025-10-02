@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,129 +9,131 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useNavigate } from 'react-router-dom';
+import { notificationService, type Notification } from '@/services/notificationService';
+import { formatDistanceToNow } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
-interface Notification {
-  id: number;
-  type: 'chapter' | 'comment' | 'system';
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  manhwaId?: number;
+interface NotificationBellProps {
+  userId: number;
 }
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    type: 'chapter',
-    title: 'Solo Leveling',
-    message: 'Вышла новая глава 180',
-    time: '5 минут назад',
-    read: false,
-    manhwaId: 1
-  },
-  {
-    id: 2,
-    type: 'chapter',
-    title: 'The Beginning After The End',
-    message: 'Вышла новая глава 156',
-    time: '1 час назад',
-    read: false,
-    manhwaId: 2
-  },
-  {
-    id: 3,
-    type: 'comment',
-    title: 'Новый комментарий',
-    message: 'Кто-то ответил на ваш комментарий',
-    time: '3 часа назад',
-    read: true,
-    manhwaId: 1
-  },
-  {
-    id: 4,
-    type: 'system',
-    title: 'Системное уведомление',
-    message: 'Добро пожаловать на MANHWA READER!',
-    time: '1 день назад',
-    read: true
-  },
-];
-
-export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+export default function NotificationBell({ userId }: NotificationBellProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+  const loadNotifications = () => {
+    setNotifications(notificationService.getNotifications(userId));
+  };
+
+  useEffect(() => {
+    loadNotifications();
+
+    const handleUpdate = () => loadNotifications();
+    
+    window.addEventListener('notification-added', handleUpdate);
+    window.addEventListener('notification-updated', handleUpdate);
+
+    return () => {
+      window.removeEventListener('notification-added', handleUpdate);
+      window.removeEventListener('notification-updated', handleUpdate);
+    };
+  }, [userId]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAsRead = (id: number) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+    notificationService.markAsRead(id);
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    notificationService.markAllAsRead(userId);
   };
 
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     if (notification.manhwaId) {
-      navigate(`/manhwa/${notification.manhwaId}`);
+      navigate(`/manhwa/${notification.manhwaId}/read?chapter=${notification.chapterId}`);
       setOpen(false);
     }
   };
 
+  const deleteNotification = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    notificationService.deleteNotification(id);
+  };
+
   const getIcon = (type: string) => {
     switch (type) {
-      case 'chapter': return 'BookOpen';
-      case 'comment': return 'MessageCircle';
-      case 'system': return 'Bell';
+      case 'comment_reply': return 'MessageCircle';
+      case 'like': return 'ThumbsUp';
+      case 'mention': return 'AtSign';
       default: return 'Bell';
+    }
+  };
+
+  const getIconColor = (type: string) => {
+    switch (type) {
+      case 'comment_reply': return 'text-blue-500';
+      case 'like': return 'text-pink-500';
+      case 'mention': return 'text-purple-500';
+      default: return 'text-muted-foreground';
     }
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative hover:bg-primary/10">
           <Icon name="Bell" size={20} />
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 min-w-[20px] p-0 px-1 flex items-center justify-center text-xs font-bold"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-96 p-0" align="end">
         <Card className="border-0 shadow-none">
           <CardHeader className="border-b p-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold">Уведомления</h3>
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-                  Прочитать все
-                </Button>
-              )}
+              <h3 className="font-bold text-lg">Уведомления</h3>
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
+                    Прочитать все
+                  </Button>
+                )}
+                {notifications.length > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => notificationService.clearAll(userId)}
+                    className="text-xs text-destructive hover:text-destructive"
+                  >
+                    Очистить
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                <Icon name="BellOff" size={48} className="mx-auto mb-2 opacity-50" />
-                <p>Нет уведомлений</p>
+              <div className="p-12 text-center text-muted-foreground">
+                <Icon name="BellOff" size={48} className="mx-auto mb-3 opacity-30" />
+                <p className="font-medium">Нет уведомлений</p>
+                <p className="text-sm mt-1">Здесь будут отображаться ответы на ваши комментарии</p>
               </div>
             ) : (
-              <div className="max-h-[400px] overflow-y-auto">
+              <div className="max-h-[500px] overflow-y-auto">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 border-b cursor-pointer transition-colors hover:bg-accent ${
-                      !notification.read ? 'bg-primary/5' : ''
+                    className={`p-4 border-b cursor-pointer transition-all hover:bg-accent group ${
+                      !notification.read ? 'bg-primary/5 border-l-4 border-l-primary' : ''
                     }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
@@ -139,21 +141,46 @@ export default function NotificationBell() {
                       <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${
                         !notification.read ? 'bg-primary/10' : 'bg-muted'
                       }`}>
-                        <Icon name={getIcon(notification.type)} size={20} />
+                        <Icon 
+                          name={getIcon(notification.type)} 
+                          size={20} 
+                          className={getIconColor(notification.type)}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-sm truncate">{notification.title}</p>
-                          {!notification.read && (
-                            <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1" />
-                          )}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-semibold text-sm">
+                            {notification.fromUser.name}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            {!notification.read && (
+                              <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => deleteNotification(e, notification.id)}
+                            >
+                              <Icon name="X" size={14} />
+                            </Button>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {notification.time}
-                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="font-medium text-primary">{notification.manhwaTitle}</span>
+                          <span>•</span>
+                          <span>Глава {notification.chapterId}</span>
+                          <span>•</span>
+                          <span>
+                            {formatDistanceToNow(notification.createdAt, { 
+                              addSuffix: true, 
+                              locale: ru 
+                            })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

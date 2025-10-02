@@ -1,4 +1,5 @@
 import { User } from './mockAuth';
+import { notificationService } from '@/services/notificationService';
 
 export interface Comment {
   id: number;
@@ -134,6 +135,25 @@ export const mockCommentsAPI = {
     
     mockComments.push(comment);
     saveToStorage();
+    
+    if (parentId) {
+      const parentComment = mockComments.find(c => c.id === parentId);
+      if (parentComment && parentComment.user_id !== user.id) {
+        notificationService.createNotification({
+          userId: parentComment.user_id,
+          type: 'comment_reply',
+          fromUser: {
+            id: user.id,
+            name: user.username
+          },
+          commentId: comment.id,
+          manhwaId,
+          chapterId,
+          manhwaTitle: 'Solo Leveling',
+          message: `ответил(а) на ваш комментарий: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`
+        });
+      }
+    }
     
     return comment;
   },

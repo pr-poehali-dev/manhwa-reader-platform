@@ -172,7 +172,7 @@ export default function IndexHeader({
             </Button>
           </div>
           
-          <NotificationBell />
+          <NotificationBell userId={1} />
           
           <Button variant="ghost" size="icon" onClick={onThemeToggle}>
             <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
