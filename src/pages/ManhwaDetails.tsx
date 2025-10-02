@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import UploadByUrl from '@/components/UploadByUrl';
 import {
   Select,
   SelectContent,
@@ -183,6 +184,11 @@ export default function ManhwaDetails() {
                   <SelectItem value="dropped">Брошено</SelectItem>
                 </SelectContent>
               </Select>
+
+              <UploadByUrl 
+                manhwaId={Number(id)} 
+                onSuccess={() => window.location.reload()}
+              />
             </div>
 
             {MOCK_MANHWA.donationLinks && (
