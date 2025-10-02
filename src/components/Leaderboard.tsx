@@ -10,6 +10,7 @@ import {
   type LeaderboardPeriod, 
   type LeaderboardType 
 } from '@/services/leaderboardService';
+import { BadgeService } from '@/services/BadgeService';
 
 interface LeaderboardProps {
   currentUserId?: number;
@@ -160,8 +161,16 @@ export default function Leaderboard({ currentUserId = 1, compact = false }: Lead
                           </Badge>
                         )}
                       </span>
+                      {entry.topBadge && (
+                        <span 
+                          className="text-lg" 
+                          title={`${entry.topBadge.name} - ${entry.topBadge.description}`}
+                        >
+                          {entry.topBadge.icon}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                       <span className="flex items-center gap-1">
                         <Icon name="BookOpen" size={12} />
                         {entry.chaptersRead}
@@ -178,6 +187,14 @@ export default function Leaderboard({ currentUserId = 1, compact = false }: Lead
                         <Icon name="Flame" size={12} />
                         {entry.readingStreak}
                       </span>
+                      {entry.badges && entry.badges.length > 0 && (
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs ${BadgeService.getRarityColor(entry.badges[0].rarity)}`}
+                        >
+                          {entry.badges.length} {entry.badges.length === 1 ? 'награда' : entry.badges.length < 5 ? 'награды' : 'наград'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 

@@ -1,4 +1,5 @@
 import { userStatsService } from './userStatsService';
+import { BadgeService, type Badge } from './BadgeService';
 
 export interface LeaderboardEntry {
   userId: number;
@@ -11,6 +12,8 @@ export interface LeaderboardEntry {
   readingStreak: number;
   rank: number;
   change: number;
+  badges?: Badge[];
+  topBadge?: Badge;
 }
 
 export type LeaderboardPeriod = 'week' | 'month' | 'allTime';
@@ -89,6 +92,19 @@ class LeaderboardService {
 
     entries.forEach((entry, index) => {
       entry.rank = index + 1;
+      
+      const badges = BadgeService.getUserBadges({
+        chapters: entry.chaptersRead,
+        comments: entry.commentsCount,
+        likes: entry.likesReceived,
+        streak: entry.readingStreak,
+        rankWeek: period === 'week' ? entry.rank : 999,
+        rankMonth: period === 'month' ? entry.rank : 999,
+        rankAll: period === 'allTime' ? entry.rank : 999
+      });
+      
+      entry.badges = badges;
+      entry.topBadge = badges.length > 0 ? badges[0] : undefined;
     });
 
     const currentUserStats = userStatsService.getStats(1);
@@ -121,6 +137,19 @@ class LeaderboardService {
     entries.sort((a, b) => b.score - a.score);
     entries.forEach((entry, index) => {
       entry.rank = index + 1;
+      
+      const badges = BadgeService.getUserBadges({
+        chapters: entry.chaptersRead,
+        comments: entry.commentsCount,
+        likes: entry.likesReceived,
+        streak: entry.readingStreak,
+        rankWeek: period === 'week' ? entry.rank : 999,
+        rankMonth: period === 'month' ? entry.rank : 999,
+        rankAll: period === 'allTime' ? entry.rank : 999
+      });
+      
+      entry.badges = badges;
+      entry.topBadge = badges.length > 0 ? badges[0] : undefined;
     });
 
     return entries.slice(0, limit);

@@ -5,6 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import Leaderboard from '@/components/Leaderboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { leaderboardService } from '@/services/leaderboardService';
+import { BadgeService } from '@/services/BadgeService';
+import { userStatsService } from '@/services/userStatsService';
+import BadgeCard from '@/components/BadgeCard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function LeaderboardPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -35,6 +39,22 @@ export default function LeaderboardPage() {
 
   const currentUserRank = leaderboardService.getUserRank(1, 'chapters', 'week');
   const totalUsers = 15;
+  
+  const userStats = userStatsService.getStats(1);
+  const userBadges = BadgeService.getUserBadges({
+    chapters: userStats.chaptersRead,
+    comments: userStats.commentsCount,
+    likes: userStats.likesReceived,
+    streak: userStats.readingStreak,
+    rankWeek: currentUserRank,
+    rankMonth: leaderboardService.getUserRank(1, 'chapters', 'month'),
+    rankAll: leaderboardService.getUserRank(1, 'chapters', 'allTime')
+  });
+  
+  const allBadges = BadgeService.getAvailableBadges();
+  const lockedBadges = allBadges.filter(badge => 
+    !userBadges.find(ub => ub.id === badge.id)
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -189,6 +209,77 @@ export default function LeaderboardPage() {
         </div>
 
         <Leaderboard currentUserId={1} />
+
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Award" size={24} className="text-primary" />
+              Награды и достижения
+            </CardTitle>
+            <CardDescription>
+              Коллекция значков и наград за активность
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="unlocked" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="unlocked" className="gap-2">
+                  <Icon name="CheckCircle2" size={16} />
+                  Получено ({userBadges.length})
+                </TabsTrigger>
+                <TabsTrigger value="locked" className="gap-2">
+                  <Icon name="Lock" size={16} />
+                  Заблокировано ({lockedBadges.length})
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="unlocked">
+                {userBadges.length > 0 ? (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {userBadges.map(badge => (
+                      <BadgeCard 
+                        key={badge.id} 
+                        badge={badge}
+                        unlocked={true}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Icon name="Award" size={48} className="mx-auto mb-3 opacity-30" />
+                    <p className="text-lg font-medium mb-2">Пока нет наград</p>
+                    <p className="text-sm">Продолжайте читать и участвовать в жизни сообщества!</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="locked">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {lockedBadges.map(badge => {
+                    const progress = BadgeService.getBadgeProgress(badge, {
+                      chapters: userStats.chaptersRead,
+                      comments: userStats.commentsCount,
+                      likes: userStats.likesReceived,
+                      streak: userStats.readingStreak,
+                      rankWeek: currentUserRank,
+                      rankMonth: leaderboardService.getUserRank(1, 'chapters', 'month'),
+                      rankAll: leaderboardService.getUserRank(1, 'chapters', 'allTime')
+                    });
+                    
+                    return (
+                      <BadgeCard 
+                        key={badge.id} 
+                        badge={badge}
+                        progress={progress}
+                        unlocked={false}
+                      />
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
