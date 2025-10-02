@@ -39,7 +39,13 @@ class NotificationService {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.notifications));
   }
 
-  createNotification(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
+  createNotification(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification | null {
+    const { notificationSettingsService } = require('./notificationSettingsService');
+    
+    if (!notificationSettingsService.isTypeEnabled(data.userId, data.type)) {
+      return null;
+    }
+
     const notification: Notification = {
       ...data,
       id: Date.now(),
@@ -52,7 +58,29 @@ class NotificationService {
     
     window.dispatchEvent(new CustomEvent('notification-added'));
     
+    const settings = notificationSettingsService.getSettings(data.userId);
+    if (settings.sound) {
+      this.playNotificationSound();
+    }
+    if (settings.desktop && 'Notification' in window && Notification.permission === 'granted') {
+      this.showDesktopNotification(notification);
+    }
+    
     return notification;
+  }
+
+  private playNotificationSound(): void {
+    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0MSNP1');
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+  }
+
+  private showDesktopNotification(notification: Notification): void {
+    new Notification('MANHWA READER', {
+      body: `${notification.fromUser.name} ${notification.message}`,
+      icon: '/favicon.ico',
+      tag: notification.id.toString()
+    });
   }
 
   getNotifications(userId: number): Notification[] {

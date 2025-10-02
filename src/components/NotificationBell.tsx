@@ -8,10 +8,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { notificationService, type Notification } from '@/services/notificationService';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import NotificationSettings from './NotificationSettings';
 
 interface NotificationBellProps {
   userId: number;
@@ -20,6 +22,7 @@ interface NotificationBellProps {
 export default function NotificationBell({ userId }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('notifications');
   const navigate = useNavigate();
 
   const loadNotifications = () => {
@@ -97,6 +100,24 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="end">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-2 rounded-none border-b">
+            <TabsTrigger value="notifications" className="gap-2">
+              <Icon name="Bell" size={14} />
+              Уведомления
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="h-4 min-w-[16px] px-1 text-[10px]">
+                  {unreadCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Icon name="Settings" size={14} />
+              Настройки
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="notifications" className="m-0">
         <Card className="border-0 shadow-none">
           <CardHeader className="border-b p-4">
             <div className="flex items-center justify-between">
@@ -189,6 +210,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+          
+          <TabsContent value="settings" className="m-0">
+            <NotificationSettings userId={userId} />
+          </TabsContent>
+        </Tabs>
       </PopoverContent>
     </Popover>
   );
