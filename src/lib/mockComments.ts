@@ -195,13 +195,20 @@ export const mockCommentsAPI = {
   reactToComment: async (
     commentId: number,
     userId: number,
-    type: 'like' | 'dislike'
+    type: 'like' | 'dislike',
+    username?: string
   ): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const comment = mockComments.find(c => c.id === commentId);
+    if (!comment) return false;
     
     const existingReaction = mockReactions.find(
       r => r.comment_id === commentId && r.user_id === userId
     );
+    
+    const isNewLike = !existingReaction && type === 'like';
+    const isChangedToLike = existingReaction && existingReaction.type !== 'like' && type === 'like';
     
     if (existingReaction) {
       if (existingReaction.type === type) {
@@ -220,6 +227,22 @@ export const mockCommentsAPI = {
     }
     
     saveToStorage();
+    
+    if ((isNewLike || isChangedToLike) && comment.user_id !== userId && username) {
+      notificationService.createNotification({
+        userId: comment.user_id,
+        type: 'like',
+        fromUser: {
+          id: userId,
+          name: username
+        },
+        commentId: comment.id,
+        manhwaId: comment.manhwa_id,
+        chapterId: comment.chapter_id,
+        manhwaTitle: 'Solo Leveling',
+        message: `оценил(а) ваш комментарий: "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}"`
+      });
+    }
     
     return true;
   },

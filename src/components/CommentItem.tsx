@@ -35,7 +35,7 @@ export default function CommentItem({ comment, onReply, onUpdate, depth = 0 }: C
     }
 
     try {
-      await mockCommentsAPI.reactToComment(comment.id, user.id, type);
+      await mockCommentsAPI.reactToComment(comment.id, user.id, type, user.username);
       if (onUpdate) onUpdate();
     } catch (error) {
       toast({
