@@ -121,33 +121,33 @@ export default function ManhwaCard({
 
   return (
     <Card 
-      className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105"
+      className="group cursor-pointer overflow-hidden hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 border-border/50"
       onClick={onCardClick}
     >
-      <div className="aspect-[3/4] relative overflow-hidden">
+      <div className="aspect-[3/4] relative overflow-hidden bg-muted">
         <img
           src={manhwa.cover}
           alt={manhwa.title}
-          className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
+        <div className="absolute top-2 right-2 flex flex-col gap-1.5">
           <Button
             size="icon"
             variant={isBookmarked ? 'default' : 'secondary'}
-            className="h-8 w-8"
+            className="h-8 w-8 backdrop-blur-sm bg-background/80 border-border/50"
             onClick={onBookmarkToggle}
           >
             <Icon name={isBookmarked ? 'BookmarkCheck' : 'Bookmark'} size={16} />
           </Button>
-          <Badge variant="destructive" className="text-xs font-bold">
+          <Badge className="text-xs font-bold bg-gradient-to-r from-primary to-secondary text-white border-0">
             <Icon name="Star" size={12} className="mr-1" />
             {manhwa.rating}
           </Badge>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <Button
           size="sm"
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-0 shadow-lg"
           onClick={(e) => {
             e.stopPropagation();
             onCardClick();
@@ -158,15 +158,15 @@ export default function ManhwaCard({
         </Button>
       </div>
       
-      <CardContent className="p-3">
-        <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
+      <CardContent className="p-4 space-y-2">
+        <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[40px]">
           {manhwa.title}
         </h3>
         
         {showGenres && (
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-1.5">
             {manhwa.genre.slice(0, 2).map((genre) => (
-              <Badge key={genre} variant="secondary" className="text-xs">
+              <Badge key={genre} variant="outline" className="text-xs border-primary/30 text-primary">
                 {genre}
               </Badge>
             ))}
@@ -174,12 +174,12 @@ export default function ManhwaCard({
         )}
 
         {showStats && (
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+            <div className="flex items-center gap-1.5">
               <Icon name="BookText" size={14} />
               <span>{manhwa.chapters} гл.</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Icon name="Eye" size={14} />
               <span>{manhwa.views}</span>
             </div>

@@ -39,7 +39,9 @@ export default function IndexSections({
       <section>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold flex items-center gap-3">
-            <Icon name="TrendingUp" size={32} className="text-primary" />
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-secondary">
+              <Icon name="TrendingUp" size={28} className="text-white" />
+            </div>
             Популярные тайтлы
           </h2>
         </div>
@@ -61,7 +63,9 @@ export default function IndexSections({
       <section>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            <Icon name="Clock" size={28} className="text-green-500" />
+            <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500">
+              <Icon name="Clock" size={24} className="text-white" />
+            </div>
             Недавно обновлённые
           </h2>
         </div>
@@ -84,7 +88,9 @@ export default function IndexSections({
       <section>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            <Icon name="Flame" size={28} className="text-orange-500" />
+            <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-red-500">
+              <Icon name="Flame" size={24} className="text-white" />
+            </div>
             Сейчас читают
           </h2>
         </div>
@@ -105,7 +111,7 @@ export default function IndexSections({
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-8 border border-primary/20">
+      <section className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 border border-primary/20 shadow-lg">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">

@@ -69,9 +69,9 @@ export default function Reader() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background reader-page">
       <header
-        className={`fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-b transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/40 transition-all duration-300 ${
           showControls ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
@@ -125,21 +125,21 @@ export default function Reader() {
       </header>
 
       <main
-        className="pt-16 pb-24 min-h-screen flex flex-col items-center justify-center cursor-pointer select-none"
+        className="pt-16 pb-24 min-h-screen flex flex-col items-center justify-center cursor-pointer select-none bg-muted/30"
         onClick={() => setShowControls(!showControls)}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <div className="max-w-4xl w-full px-4">
+        <div className="max-w-5xl w-full px-2 md:px-4">
           <ProtectedImage
             src={chapter?.pages[currentPage - 1]?.url || ''}
             alt={`Страница ${currentPage}`}
-            className="w-full h-auto rounded-lg shadow-2xl"
+            className="w-full h-auto rounded-xl shadow-2xl"
           />
         </div>
       </main>
 
       <footer
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-t transition-transform duration-300 ${
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/40 transition-all duration-300 ${
           showControls ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -150,6 +150,7 @@ export default function Reader() {
               size="icon"
               onClick={prevPage}
               disabled={currentPage === 1 && currentChapter === 1}
+              className="hover:bg-primary/10 hover:border-primary"
             >
               <Icon name="ChevronLeft" size={20} />
             </Button>
@@ -174,6 +175,7 @@ export default function Reader() {
               size="icon"
               onClick={nextPage}
               disabled={currentPage === totalPages && currentChapter === MOCK_CHAPTERS.length}
+              className="hover:bg-primary/10 hover:border-primary"
             >
               <Icon name="ChevronRight" size={20} />
             </Button>
@@ -190,7 +192,7 @@ export default function Reader() {
                 }
               }}
               disabled={currentChapter === 1}
-              className="gap-2"
+              className="gap-2 hover:bg-primary/10 hover:border-primary"
             >
               <Icon name="ChevronLeft" size={16} />
               Предыдущая глава
@@ -206,7 +208,7 @@ export default function Reader() {
                 }
               }}
               disabled={currentChapter === MOCK_CHAPTERS.length}
-              className="gap-2"
+              className="gap-2 hover:bg-primary/10 hover:border-primary"
             >
               Следующая глава
               <Icon name="ChevronRight" size={16} />

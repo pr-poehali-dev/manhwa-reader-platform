@@ -20,11 +20,11 @@ export default function IndexHeader({
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
               MANHWA READER
             </h1>
             <div className="hidden sm:flex items-center gap-1 bg-muted rounded-lg p-1">
