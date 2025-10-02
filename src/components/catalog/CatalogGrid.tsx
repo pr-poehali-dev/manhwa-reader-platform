@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import LazyImage from '@/components/LazyImage';
 import { useNavigate } from 'react-router-dom';
 
 interface Manhwa {
@@ -80,7 +81,7 @@ export default function CatalogGrid({
             onClick={() => navigate(`/manhwa/${manhwa.id}`)}
           >
             <div className="aspect-[3/4] relative overflow-hidden">
-              <img
+              <LazyImage
                 src={manhwa.cover}
                 alt={manhwa.title}
                 className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"

@@ -33,20 +33,33 @@ const getUserId = () => {
 };
 
 export default function Catalog() {
+  const loadFiltersFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('catalog_filters');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error loading filters:', e);
+    }
+    return null;
+  };
+
+  const savedFilters = loadFiltersFromStorage();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(savedFilters?.searchQuery || '');
   const [manhwaList, setManhwaList] = useState<Manhwa[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookmarks, setBookmarks] = useState<Set<number>>(new Set());
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedYear, setSelectedYear] = useState('all');
-  const [sortBy, setSortBy] = useState('rating');
-  const [minRating, setMinRating] = useState(0);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(savedFilters?.selectedGenres || []);
+  const [selectedType, setSelectedType] = useState(savedFilters?.selectedType || 'all');
+  const [selectedStatus, setSelectedStatus] = useState(savedFilters?.selectedStatus || 'all');
+  const [selectedYear, setSelectedYear] = useState(savedFilters?.selectedYear || 'all');
+  const [sortBy, setSortBy] = useState(savedFilters?.sortBy || 'rating');
+  const [minRating, setMinRating] = useState(savedFilters?.minRating || 0);
   const [showFilters, setShowFilters] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [itemsPerPage, setItemsPerPage] = useState(savedFilters?.itemsPerPage || 20);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -151,6 +164,20 @@ export default function Catalog() {
     }
   };
 
+  useEffect(() => {
+    const filters = {
+      searchQuery,
+      selectedGenres,
+      selectedType,
+      selectedStatus,
+      selectedYear,
+      sortBy,
+      minRating,
+      itemsPerPage
+    };
+    localStorage.setItem('catalog_filters', JSON.stringify(filters));
+  }, [searchQuery, selectedGenres, selectedType, selectedStatus, selectedYear, sortBy, minRating, itemsPerPage]);
+
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev => 
       prev.includes(genre) 
@@ -168,6 +195,7 @@ export default function Catalog() {
     setMinRating(0);
     setSearchQuery('');
     setCurrentPage(1);
+    localStorage.removeItem('catalog_filters');
   };
 
   const filteredManhwa = manhwaList.filter(m => {

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import NotificationBell from '@/components/NotificationBell';
 import { useNavigate } from 'react-router-dom';
 
 interface CatalogHeaderProps {
@@ -38,6 +39,8 @@ export default function CatalogHeader({
               onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
+          
+          <NotificationBell />
           
           <Button variant="ghost" size="icon" onClick={onThemeToggle}>
             <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />

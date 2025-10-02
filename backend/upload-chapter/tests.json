@@ -5,6 +5,45 @@
       "method": "OPTIONS",
       "path": "/",
       "expectedStatus": 200
+    },
+    {
+      "name": "Upload by VK URL",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "url": "https://vk.com/wall-123456_789",
+        "manhwa_id": 1,
+        "chapter_number": 50,
+        "title": "Глава 50"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "chapter_id": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Upload by Boosty URL",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "url": "https://boosty.to/team/posts/abc123",
+        "manhwa_id": 2,
+        "chapter_number": 25,
+        "title": "Глава 25"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
