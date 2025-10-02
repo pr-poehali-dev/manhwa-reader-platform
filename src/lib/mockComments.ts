@@ -1,5 +1,6 @@
 import { User } from './mockAuth';
 import { notificationService } from '@/services/notificationService';
+import { userStatsService } from '@/services/userStatsService';
 
 export interface Comment {
   id: number;
@@ -136,6 +137,8 @@ export const mockCommentsAPI = {
     mockComments.push(comment);
     saveToStorage();
     
+    userStatsService.incrementComments(user.id);
+    
     if (parentId) {
       const parentComment = mockComments.find(c => c.id === parentId);
       if (parentComment && parentComment.user_id !== user.id) {
@@ -228,7 +231,13 @@ export const mockCommentsAPI = {
     
     saveToStorage();
     
+    if (type === 'like' && !existingReaction) {
+      userStatsService.incrementLikesGiven(userId);
+    }
+    
     if ((isNewLike || isChangedToLike) && comment.user_id !== userId && username) {
+      userStatsService.incrementLikesReceived(comment.user_id);
+      
       notificationService.createNotification({
         userId: comment.user_id,
         type: 'like',

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import UserStats from '@/components/UserStats';
 
 interface Manhwa {
   id: number;
@@ -196,8 +197,12 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="reading" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+        <Tabs defaultValue="stats" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
+            <TabsTrigger value="stats">
+              <Icon name="BarChart3" size={16} className="mr-2 hidden sm:block" />
+              Статистика
+            </TabsTrigger>
             <TabsTrigger value="reading">
               <Icon name="BookOpen" size={16} className="mr-2 hidden sm:block" />
               Читаю
@@ -223,6 +228,10 @@ export default function Profile() {
               Настройки
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="stats">
+            <UserStats userId={1} />
+          </TabsContent>
 
           <TabsContent value="bookmarks" className="space-y-4">
             {bookmarks.length === 0 ? (

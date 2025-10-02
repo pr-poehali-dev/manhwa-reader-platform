@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import ProtectedImage from '@/components/ProtectedImage';
 import CommentSection from '@/components/CommentSection';
+import { userStatsService } from '@/services/userStatsService';
 import '@/styles/reader.css';
 
 const MOCK_CHAPTERS = Array.from({ length: 145 }, (_, i) => ({
@@ -59,6 +60,7 @@ export default function Reader() {
       if (currentPage < totalPages) {
         setCurrentPage(currentPage + 1);
       } else if (currentChapter < MOCK_CHAPTERS.length) {
+        userStatsService.markChapterAsRead(1, Number(id) || 1, currentChapter);
         setCurrentChapter(currentChapter + 1);
         setCurrentPage(1);
       }
