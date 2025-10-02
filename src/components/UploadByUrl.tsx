@@ -151,11 +151,11 @@ export default function UploadByUrl({ manhwaId, onSuccess }: UploadByUrlProps) {
           Загрузить по ссылке
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Загрузка главы по ссылке</DialogTitle>
+          <DialogTitle>Загрузка главы</DialogTitle>
           <DialogDescription>
-            Поддерживаются ссылки на посты из ВКонтакте и Boosty с изображениями
+            Загрузите изображения с компьютера или по ссылке из VK/Boosty
           </DialogDescription>
         </DialogHeader>
 
@@ -200,22 +200,50 @@ export default function UploadByUrl({ manhwaId, onSuccess }: UploadByUrlProps) {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <Label htmlFor="files">
-                Изображения главы <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="files"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileSelect}
-                disabled={loading}
-              />
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="files">
+                  Изображения главы <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="files"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileSelect}
+                  disabled={loading}
+                />
+                {selectedFiles.length > 0 && (
+                  <p className="text-sm font-medium text-primary">
+                    Выбрано страниц: {selectedFiles.length}
+                  </p>
+                )}
+              </div>
+              
               {selectedFiles.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Выбрано: {selectedFiles.length} файл(ов)
-                </p>
+                <div className="border rounded-lg p-3 bg-muted/30">
+                  <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Icon name="Eye" size={16} />
+                    Предпросмотр страниц:
+                  </p>
+                  <div className="grid grid-cols-4 gap-2 max-h-[300px] overflow-y-auto">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Страница ${index + 1}`}
+                          className="w-full h-24 object-cover rounded border hover:ring-2 ring-primary transition-all"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">#{index + 1}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    💡 Порядок файлов определяет порядок страниц в главе
+                  </p>
+                </div>
               )}
             </div>
           )}
