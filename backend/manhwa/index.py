@@ -32,12 +32,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'GET':
         params = event.get('queryStringParameters') or {}
+        resource = params.get('resource', '')
         search = params.get('search', '')
         sort_by = params.get('sort', 'rating')
         limit = int(params.get('limit', '50'))
         
         conn = get_db_connection()
         cur = conn.cursor()
+        
+        if resource == 'genres':
+            cur.execute('SELECT id, name FROM genres ORDER BY name')
+            rows = cur.fetchall()
+            genres = [{'id': row[0], 'name': row[1]} for row in rows]
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'genres': genres}, ensure_ascii=False),
+                'isBase64Encoded': False
+            }
         
         query = '''
             SELECT 

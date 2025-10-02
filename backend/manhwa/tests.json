@@ -11,7 +11,8 @@
           "title": "string",
           "cover": "string",
           "rating": "number",
-          "genre": "array"
+          "genre": "array",
+          "chapters": "number"
         }
       ],
       "bodyMatcher": "partial"
@@ -26,6 +27,21 @@
           "title": "string"
         }
       ],
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get genres",
+      "method": "GET",
+      "path": "/?resource=genres",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "genres": [
+          {
+            "id": "number",
+            "name": "string"
+          }
+        ]
+      },
       "bodyMatcher": "partial"
     }
   ]

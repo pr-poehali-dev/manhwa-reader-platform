@@ -147,9 +147,13 @@ export default function IndexHeader({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <DropdownMenuItem onClick={() => navigate('/my-profile')}>
                     <Icon name="User" size={14} className="mr-2" />
-                    Профиль
+                    Мой профиль
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <Icon name="Bookmark" size={14} className="mr-2" />
+                    Закладки
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/teams')}>
                     <Icon name="Users" size={14} className="mr-2" />
@@ -187,7 +191,7 @@ export default function IndexHeader({
             <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/my-profile')}>
             <Icon name="User" size={20} />
           </Button>
 

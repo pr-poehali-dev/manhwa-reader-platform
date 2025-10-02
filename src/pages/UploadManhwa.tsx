@@ -60,7 +60,7 @@ export default function UploadManhwa() {
 
   const fetchGenres = async () => {
     try {
-      const response = await fetch(`${API_URL}/genres`);
+      const response = await fetch(`${API_URL}?resource=genres`);
       const data = await response.json();
       setGenres(data.genres || []);
     } catch (error) {
