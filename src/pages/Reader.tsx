@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import ProtectedImage from '@/components/ProtectedImage';
+import CommentSection from '@/components/CommentSection';
 import '@/styles/reader.css';
 
 const MOCK_CHAPTERS = Array.from({ length: 145 }, (_, i) => ({
@@ -228,6 +229,13 @@ export default function Reader() {
           </div>
         </div>
       </footer>
+
+      <div className="container max-w-4xl mx-auto px-4 pb-12">
+        <CommentSection 
+          manhwaId={Number(id) || 1} 
+          chapterId={currentChapter} 
+        />
+      </div>
     </div>
   );
 }
