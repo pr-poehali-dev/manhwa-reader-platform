@@ -8,6 +8,7 @@ import { mockTeamsAPI, Team as MockTeam } from '@/lib/mockTeams';
 import { useAuth } from '@/contexts/AuthContext';
 import EditTeam from '@/components/EditTeam';
 import AuthDialog from '@/components/AuthDialog';
+import ManageTeamMembers from '@/components/ManageTeamMembers';
 
 const UPLOADS_API = 'https://functions.poehali.dev/80df506b-6764-4bb1-a3ad-652c4be9e920';
 
@@ -145,7 +146,10 @@ export default function Teams() {
 
                   <div className="flex gap-2 mt-4">
                     {user && team.creator_id === user.id && (
-                      <EditTeam team={team} onSuccess={fetchTeams} />
+                      <>
+                        <EditTeam team={team} onSuccess={fetchTeams} />
+                        <ManageTeamMembers team={team} onSuccess={fetchTeams} />
+                      </>
                     )}
                   </div>
                 </CardContent>

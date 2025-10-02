@@ -31,14 +31,14 @@ export default function IndexHeader({
   const { user, logout, isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/95 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/95 shadow-lg shadow-primary/5">
+      <div className="container flex h-20 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
-              MANHWA READER
+            <h1 className="text-3xl font-black bg-gradient-to-r from-primary via-pink-500 to-secondary bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/')}>
+              MANHWA
             </h1>
-            <div className="hidden sm:flex items-center gap-1 bg-muted rounded-lg p-1">
+            <div className="hidden sm:flex items-center gap-1 bg-gradient-to-r from-muted/50 to-muted/30 rounded-full p-1 backdrop-blur-sm border border-border/50">
               <Button
                 variant={contentType === 'manhwa' ? 'default' : 'ghost'}
                 size="sm"
@@ -46,7 +46,7 @@ export default function IndexHeader({
                   onContentTypeChange('manhwa');
                   navigate('/');
                 }}
-                className="text-xs"
+                className={contentType === 'manhwa' ? 'text-xs rounded-full bg-gradient-to-r from-primary to-secondary' : 'text-xs rounded-full'}
               >
                 <Icon name="BookImage" size={14} className="mr-1" />
                 Манхва
@@ -58,7 +58,7 @@ export default function IndexHeader({
                   onContentTypeChange('novels');
                   navigate('/novels');
                 }}
-                className="text-xs"
+                className={contentType === 'novels' ? 'text-xs rounded-full bg-gradient-to-r from-primary to-secondary' : 'text-xs rounded-full'}
               >
                 <Icon name="BookText" size={14} className="mr-1" />
                 Новеллы
