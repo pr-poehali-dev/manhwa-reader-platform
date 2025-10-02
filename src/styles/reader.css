@@ -1,0 +1,12 @@
+.page-transition {
+  transition:
+    opacity 150ms ease-in-out,
+    transform 150ms ease-in-out;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition.transitioning {
+  opacity: 0;
+  transform: translateX(-10px);
+}

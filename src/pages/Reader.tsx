@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import ProtectedImage from '@/components/ProtectedImage';
+import '@/styles/reader.css';
 
 const MOCK_CHAPTERS = Array.from({ length: 145 }, (_, i) => ({
   id: i + 1,
@@ -23,6 +24,7 @@ export default function Reader() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showControls, setShowControls] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const chapter = MOCK_CHAPTERS[currentChapter - 1];
   const totalPages = chapter?.pages.length || 0;
@@ -51,21 +53,29 @@ export default function Reader() {
   };
 
   const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    } else if (currentChapter < MOCK_CHAPTERS.length) {
-      setCurrentChapter(currentChapter + 1);
-      setCurrentPage(1);
-    }
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (currentPage < totalPages) {
+        setCurrentPage(currentPage + 1);
+      } else if (currentChapter < MOCK_CHAPTERS.length) {
+        setCurrentChapter(currentChapter + 1);
+        setCurrentPage(1);
+      }
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    } else if (currentChapter > 1) {
-      setCurrentChapter(currentChapter - 1);
-      setCurrentPage(MOCK_CHAPTERS[currentChapter - 2].pages.length);
-    }
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else if (currentChapter > 1) {
+        setCurrentChapter(currentChapter - 1);
+        setCurrentPage(MOCK_CHAPTERS[currentChapter - 2].pages.length);
+      }
+      setIsTransitioning(false);
+    }, 150);
   };
 
   return (
@@ -130,11 +140,13 @@ export default function Reader() {
         onContextMenu={(e) => e.preventDefault()}
       >
         <div className="max-w-5xl w-full px-2 md:px-4">
-          <ProtectedImage
-            src={chapter?.pages[currentPage - 1]?.url || ''}
-            alt={`Страница ${currentPage}`}
-            className="w-full h-auto rounded-xl shadow-2xl"
-          />
+          <div className={`page-transition ${isTransitioning ? 'transitioning' : ''}`}>
+            <ProtectedImage
+              src={chapter?.pages[currentPage - 1]?.url || ''}
+              alt={`Страница ${currentPage}`}
+              className="w-full h-auto rounded-xl shadow-2xl"
+            />
+          </div>
         </div>
       </main>
 

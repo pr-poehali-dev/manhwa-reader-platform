@@ -36,6 +36,8 @@ export default function UploadManhwa() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string>('');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -73,6 +75,20 @@ export default function UploadManhwa() {
       setTeams(data.teams || []);
     } catch (error) {
       console.error('Error fetching teams:', error);
+    }
+  };
+
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setCoverFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setCoverPreview(base64);
+        setFormData({ ...formData, cover_url: base64 });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -174,17 +190,36 @@ export default function UploadManhwa() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cover_url">
-                  Ссылка на обложку <span className="text-destructive">*</span>
+                <Label>
+                  Обложка <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="cover_url"
-                  type="url"
-                  value={formData.cover_url}
-                  onChange={(e) => setFormData({ ...formData, cover_url: e.target.value })}
-                  placeholder="https://example.com/cover.jpg"
-                  required
-                />
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverUpload}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="text-sm text-muted-foreground text-center">или</div>
+                  <Input
+                    id="cover_url"
+                    type="url"
+                    value={formData.cover_url.startsWith('data:') ? '' : formData.cover_url}
+                    onChange={(e) => setFormData({ ...formData, cover_url: e.target.value })}
+                    placeholder="Вставьте ссылку на обложку"
+                  />
+                  {(coverPreview || formData.cover_url) && (
+                    <div className="mt-2">
+                      <img
+                        src={coverPreview || formData.cover_url}
+                        alt="Предпросмотр обложки"
+                        className="w-32 h-48 object-cover rounded-lg border"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
