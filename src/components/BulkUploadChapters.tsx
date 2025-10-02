@@ -16,6 +16,11 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const UPLOAD_BY_URL_API = 'https://functions.poehali.dev/13fb9333-8228-419c-87f0-3814e0eb716f';
 
@@ -177,6 +182,12 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
     setChapters(prev => prev.filter((_, i) => i !== index));
   };
 
+  const updateChapter = (index: number, updates: Partial<Chapter>) => {
+    setChapters(prev => prev.map((ch, i) => 
+      i === index ? { ...ch, ...updates } : ch
+    ));
+  };
+
   const resetUpload = () => {
     setChapters([]);
     setCurrentUpload(0);
@@ -309,6 +320,11 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
                               <p className="font-medium text-sm">
                                 Глава {chapter.number}
                               </p>
+                              {chapter.title !== `Глава ${chapter.number}` && (
+                                <span className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                  — {chapter.title}
+                                </span>
+                              )}
                               <Badge variant="secondary" className="text-xs">
                                 {chapter.files.length} стр.
                               </Badge>
@@ -321,13 +337,62 @@ export default function BulkUploadChapters({ manhwaId, onSuccess }: BulkUploadCh
                           </div>
 
                           {!uploading && chapter.status === 'pending' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeChapter(index)}
-                            >
-                              <Icon name="X" size={14} />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                  >
+                                    <Icon name="Edit" size={14} />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80" align="end">
+                                  <div className="space-y-3">
+                                    <div className="space-y-1.5">
+                                      <Label className="text-xs font-medium">
+                                        Номер главы
+                                      </Label>
+                                      <Input
+                                        type="number"
+                                        value={chapter.number}
+                                        onChange={(e) => updateChapter(index, {
+                                          number: parseInt(e.target.value) || 1
+                                        })}
+                                        className="h-8"
+                                      />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <Label className="text-xs font-medium">
+                                        Название главы
+                                      </Label>
+                                      <Input
+                                        value={chapter.title}
+                                        onChange={(e) => updateChapter(index, {
+                                          title: e.target.value
+                                        })}
+                                        placeholder="Глава 1 - Начало"
+                                        className="h-8"
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded text-xs">
+                                      <Icon name="Image" size={14} className="text-muted-foreground" />
+                                      <span className="text-muted-foreground">
+                                        Страниц: {chapter.files.length}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeChapter(index)}
+                              >
+                                <Icon name="X" size={14} />
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </CardContent>
