@@ -8,6 +8,7 @@ import IndexSections from '@/components/index/IndexSections';
 import IndexFooter from '@/components/index/IndexFooter';
 import ManhwaCard from '@/components/index/ManhwaCard';
 import { SkeletonGrid } from '@/components/ui/skeleton';
+import CategoryTabs from '@/components/index/CategoryTabs';
 
 interface Manhwa {
   id: number;
@@ -46,6 +47,7 @@ export default function Index() {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,7 +174,29 @@ export default function Index() {
   };
 
   const allManhwa = [...popularManhwa, ...currentlyReading, ...recentlyUpdated];
-  const filteredManhwa = allManhwa.filter(m => {
+  
+  const getCategoryManhwa = () => {
+    switch(activeCategory) {
+      case 'popular':
+        return popularManhwa;
+      case 'new':
+        return [...allManhwa].sort((a, b) => b.id - a.id).slice(0, 12);
+      case 'updated':
+        return recentlyUpdated;
+      case 'top_rated':
+        return [...allManhwa].sort((a, b) => b.rating - a.rating);
+      case 'reading':
+        return currentlyReading;
+      case 'bookmarks':
+        return allManhwa.filter(m => bookmarks.has(m.id));
+      case 'finished':
+        return allManhwa.filter(m => m.status === 'completed');
+      default:
+        return allManhwa;
+    }
+  };
+  
+  const filteredManhwa = getCategoryManhwa().filter(m => {
     const matchesSearch = searchQuery ? m.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
     const matchesGenres = selectedGenres.length > 0 ? selectedGenres.some(g => m.genre.includes(g)) : true;
     const matchesType = selectedType === 'all' ? true : m.status === selectedType;
@@ -205,7 +229,12 @@ export default function Index() {
         onContentTypeChange={setContentType}
       />
 
-      <main className="container px-4 py-8 pb-24 lg:pb-8 space-y-12">
+      <main className="container px-4 py-8 pb-24 lg:pb-8 space-y-6">
+        <CategoryTabs 
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+        />
+
         <IndexFilters
           selectedGenres={selectedGenres}
           selectedType={selectedType}
@@ -222,7 +251,7 @@ export default function Index() {
           }}
         />
 
-        {(searchQuery || selectedGenres.length > 0 || selectedType !== 'all' || selectedStatus !== 'all') ? (
+        {(searchQuery || selectedGenres.length > 0 || selectedType !== 'all' || selectedStatus !== 'all' || activeCategory !== 'all') ? (
           <section className="animate-in fade-in slide-in-bottom">
             <h2 className="text-2xl font-bold mb-6">
               {searchQuery ? 'Результаты поиска' : 'Отфильтрованные тайтлы'} ({filteredManhwa.length})

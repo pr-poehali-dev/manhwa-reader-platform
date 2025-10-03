@@ -13,6 +13,9 @@ interface Manhwa {
   genre: string[];
   views: number;
   updated_at?: string;
+  age_rating?: string;
+  type?: string;
+  translation_status?: string;
 }
 
 interface ManhwaCardProps {
@@ -142,12 +145,30 @@ export default function ManhwaCard({
           </Button>
         </div>
 
-        {showNewBadge && (
-          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold border-0 shadow-lg">
-            <Icon name="Sparkles" size={12} className="mr-1" />
-            NEW
-          </Badge>
-        )}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {showNewBadge && (
+            <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold border-0 shadow-lg">
+              <Icon name="Sparkles" size={12} className="mr-1" />
+              NEW
+            </Badge>
+          )}
+          {manhwa.age_rating && (
+            <Badge variant="secondary" className="text-xs font-bold backdrop-blur-md bg-background/90">
+              {manhwa.age_rating}
+            </Badge>
+          )}
+          {manhwa.translation_status && (
+            <Badge 
+              className={`text-xs font-bold ${
+                manhwa.translation_status === 'active' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              {manhwa.translation_status === 'active' ? 'Переводится' : 'Завершён'}
+            </Badge>
+          )}
+        </div>
         
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
         
