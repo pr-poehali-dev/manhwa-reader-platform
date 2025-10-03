@@ -31,7 +31,7 @@ export default function IndexHeader({
   const { user, logout, isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/95 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/95 shadow-lg shadow-primary/5">
+    <header className="sticky top-0 z-50 w-full border-b border-border/20 bg-background/95 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/95 shadow-lg shadow-primary/5 theme-transition">
       <div className="container flex h-20 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
@@ -187,8 +187,16 @@ export default function IndexHeader({
           
           <NotificationBell userId={1} />
           
-          <Button variant="ghost" size="icon" onClick={onThemeToggle}>
-            <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onThemeToggle}
+            className="relative overflow-hidden group"
+          >
+            <div className="theme-icon-rotate">
+              <Icon name={theme === 'light' ? 'Moon' : 'Sun'} size={20} />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Button>
 
           <Button variant="ghost" size="icon" onClick={() => navigate('/my-profile')}>

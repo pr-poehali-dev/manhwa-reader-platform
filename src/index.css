@@ -84,11 +84,28 @@
     --sidebar-border: 230 18% 18%;
     --sidebar-ring: 262 83% 58%;
   }
+
+  :root,
+  .dark {
+    transition:
+      --background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      --foreground 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      --card 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      --primary 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  html {
+    transition: background-color 0.3s ease;
   }
 
   body {
@@ -101,6 +118,9 @@
       Roboto,
       sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 
   img,
@@ -281,5 +301,110 @@
 
   .smooth-transition {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-transition {
+    transition:
+      background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes themeSwitch {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .dark-mode-switch {
+    animation: themeSwitch 0.4s ease-out;
+  }
+
+  .theme-icon-rotate {
+    animation: iconRotate 0.4s ease-out;
+  }
+
+  @keyframes iconRotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(180deg);
+    }
+  }
+
+  .gradient-text {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)),
+      hsl(var(--secondary))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-border {
+    position: relative;
+    background:
+      linear-gradient(var(--background), var(--background)) padding-box,
+      linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)))
+        border-box;
+    border: 2px solid transparent;
+  }
+
+  .color-scheme-glow {
+    box-shadow:
+      0 0 20px hsla(var(--primary), 0.3),
+      0 0 40px hsla(var(--primary), 0.1);
+    transition: box-shadow 0.4s ease;
+  }
+
+  .dark .color-scheme-glow {
+    box-shadow:
+      0 0 30px hsla(var(--primary), 0.4),
+      0 0 60px hsla(var(--primary), 0.2);
+  }
+
+  .theme-pulse {
+    animation: themePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes themePulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+
+  .dark-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--card)) 50%,
+      hsl(var(--background)) 100%
+    );
+  }
+
+  .light-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--muted)) 50%,
+      hsl(var(--background)) 100%
+    );
   }
 }
