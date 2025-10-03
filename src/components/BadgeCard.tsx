@@ -12,15 +12,15 @@ interface BadgeCardProps {
 export default function BadgeCard({ badge, progress, unlocked = true }: BadgeCardProps) {
   return (
     <Card 
-      className={`relative overflow-hidden transition-all hover:scale-105 ${
+      className={`relative overflow-hidden transition-all duration-300 hover:scale-105 hover-lift group ${
         unlocked 
           ? `${BadgeService.getRarityBgColor(badge.rarity)} ${BadgeService.getRarityBorderColor(badge.rarity)}` 
-          : 'opacity-60 grayscale'
+          : 'opacity-60 grayscale hover:grayscale-0'
       }`}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <div className="text-4xl shrink-0">
+          <div className="text-4xl shrink-0 transition-transform duration-300 group-hover:scale-110">
             {badge.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -47,7 +47,7 @@ export default function BadgeCard({ badge, progress, unlocked = true }: BadgeCar
                 </div>
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className={`h-full transition-all ${BadgeService.getRarityBgColor(badge.rarity)}`}
+                    className={`h-full transition-all duration-500 ease-out ${BadgeService.getRarityBgColor(badge.rarity)}`}
                     style={{ width: `${progress.percentage}%` }}
                   />
                 </div>

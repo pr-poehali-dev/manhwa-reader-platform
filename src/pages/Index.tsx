@@ -214,20 +214,21 @@ export default function Index() {
         />
 
         {(searchQuery || selectedGenres.length > 0 || selectedType !== 'all' || selectedStatus !== 'all') ? (
-          <section>
+          <section className="animate-in fade-in slide-in-bottom">
             <h2 className="text-2xl font-bold mb-6">
               {searchQuery ? 'Результаты поиска' : 'Отфильтрованные тайтлы'} ({filteredManhwa.length})
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {filteredManhwa.map((manhwa) => (
-                <ManhwaCard
-                  key={manhwa.id}
-                  manhwa={manhwa}
-                  isBookmarked={bookmarks.has(manhwa.id)}
-                  variant="default"
-                  onCardClick={() => navigate(`/reader/${manhwa.id}`)}
-                  onBookmarkToggle={(e) => toggleBookmark(manhwa.id, e)}
-                />
+              {filteredManhwa.map((manhwa, index) => (
+                <div key={manhwa.id} className="animate-in fade-in scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+                  <ManhwaCard
+                    manhwa={manhwa}
+                    isBookmarked={bookmarks.has(manhwa.id)}
+                    variant="default"
+                    onCardClick={() => navigate(`/reader/${manhwa.id}`)}
+                    onBookmarkToggle={(e) => toggleBookmark(manhwa.id, e)}
+                  />
+                </div>
               ))}
             </div>
           </section>

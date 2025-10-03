@@ -109,8 +109,8 @@ export default function ProfilePage() {
       </header>
 
       <main className="container px-4 py-8 max-w-6xl">
-        <div className="grid gap-6 lg:grid-cols-3 mb-8">
-          <Card className="lg:col-span-2">
+        <div className="grid gap-6 lg:grid-cols-3 mb-8 animate-in fade-in slide-in-bottom">
+          <Card className="lg:col-span-2 hover-lift smooth-transition">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
@@ -160,7 +160,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-lift smooth-transition">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="Trophy" size={20} />
@@ -168,21 +168,21 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 hover-scale smooth-transition">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">📅</span>
                   <span className="text-sm font-medium">За неделю</span>
                 </div>
                 <span className="text-lg font-bold text-yellow-600">#{rankWeek}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 hover-scale smooth-transition">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">📆</span>
                   <span className="text-sm font-medium">За месяц</span>
                 </div>
                 <span className="text-lg font-bold text-blue-600">#{rankMonth}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 hover-scale smooth-transition">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🏆</span>
                   <span className="text-sm font-medium">Всё время</span>
@@ -193,7 +193,7 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        <Card className="mb-8">
+        <Card className="mb-8 animate-in fade-in slide-in-bottom hover-lift smooth-transition" style={{ animationDelay: '200ms' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="Award" size={24} className="text-primary" />
@@ -281,7 +281,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="animate-in fade-in slide-in-bottom hover-lift smooth-transition" style={{ animationDelay: '400ms' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="Activity" size={24} className="text-primary" />
@@ -293,7 +293,7 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-scale smooth-transition">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Icon name="BookOpen" size={20} className="text-primary" />
                 </div>
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-scale smooth-transition">
                 <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                   <Icon name="MessageCircle" size={20} className="text-blue-500" />
                 </div>
@@ -313,7 +313,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
+              <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover-scale smooth-transition">
                 <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
                   <Icon name="Award" size={20} className="text-yellow-500" />
                 </div>

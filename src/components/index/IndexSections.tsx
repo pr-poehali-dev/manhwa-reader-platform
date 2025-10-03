@@ -36,10 +36,10 @@ export default function IndexSections({
 
   return (
     <>
-      <section>
+      <section className="animate-in fade-in slide-in-bottom">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-secondary">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-secondary shimmer">
               <Icon name="TrendingUp" size={28} className="text-white" />
             </div>
             Популярные тайтлы
@@ -47,23 +47,24 @@ export default function IndexSections({
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {popularManhwa.map((manhwa) => (
-            <ManhwaCard
-              key={manhwa.id}
-              manhwa={manhwa}
-              isBookmarked={bookmarks.has(manhwa.id)}
-              variant="detailed"
-              onCardClick={() => navigate(`/manhwa/${manhwa.id}`)}
-              onBookmarkToggle={(e) => onBookmarkToggle(manhwa.id, e)}
-            />
+          {popularManhwa.map((manhwa, index) => (
+            <div key={manhwa.id} className="animate-in fade-in scale-in" style={{ animationDelay: `${index * 100}ms` }}>
+              <ManhwaCard
+                manhwa={manhwa}
+                isBookmarked={bookmarks.has(manhwa.id)}
+                variant="detailed"
+                onCardClick={() => navigate(`/manhwa/${manhwa.id}`)}
+                onBookmarkToggle={(e) => onBookmarkToggle(manhwa.id, e)}
+              />
+            </div>
           ))}
         </div>
       </section>
 
-      <section>
+      <section className="animate-in fade-in slide-in-bottom" style={{ animationDelay: '200ms' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 shimmer">
               <Icon name="Clock" size={24} className="text-white" />
             </div>
             Недавно обновлённые
@@ -71,24 +72,25 @@ export default function IndexSections({
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {recentlyUpdated.map((manhwa) => (
-            <ManhwaCard
-              key={manhwa.id}
-              manhwa={manhwa}
-              isBookmarked={bookmarks.has(manhwa.id)}
-              variant="compact"
-              showNewBadge={true}
+          {recentlyUpdated.map((manhwa, index) => (
+            <div key={manhwa.id} className="animate-in fade-in scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+              <ManhwaCard
+                manhwa={manhwa}
+                isBookmarked={bookmarks.has(manhwa.id)}
+                variant="compact"
+                showNewBadge={true}
               onCardClick={() => navigate(`/reader/${manhwa.id}`)}
               onBookmarkToggle={(e) => onBookmarkToggle(manhwa.id, e)}
-            />
+              />
+            </div>
           ))}
         </div>
       </section>
 
-      <section>
+      <section className="animate-in fade-in slide-in-bottom" style={{ animationDelay: '400ms' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-red-500">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 shimmer">
               <Icon name="Flame" size={24} className="text-white" />
             </div>
             Сейчас читают
@@ -96,22 +98,23 @@ export default function IndexSections({
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {currentlyReading.map((manhwa) => (
-            <ManhwaCard
-              key={manhwa.id}
-              manhwa={manhwa}
-              isBookmarked={bookmarks.has(manhwa.id)}
-              variant="default"
-              showGenres={true}
-              showStats={true}
-              onCardClick={() => navigate(`/reader/${manhwa.id}`)}
-              onBookmarkToggle={(e) => onBookmarkToggle(manhwa.id, e)}
-            />
+          {currentlyReading.map((manhwa, index) => (
+            <div key={manhwa.id} className="animate-in fade-in scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+              <ManhwaCard
+                manhwa={manhwa}
+                isBookmarked={bookmarks.has(manhwa.id)}
+                variant="default"
+                showGenres={true}
+                showStats={true}
+                onCardClick={() => navigate(`/reader/${manhwa.id}`)}
+                onBookmarkToggle={(e) => onBookmarkToggle(manhwa.id, e)}
+              />
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 border border-primary/20 shadow-lg">
+      <section className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 border border-primary/20 shadow-lg animate-in fade-in slide-in-bottom hover-lift" style={{ animationDelay: '600ms' }}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">
