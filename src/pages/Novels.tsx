@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop';
 import NotificationBell from '@/components/NotificationBell';
 import SearchWithAutocomplete from '@/components/SearchWithAutocomplete';
+import { SkeletonNovelList } from '@/components/ui/skeleton';
 
 interface Novel {
   id: number;
@@ -87,6 +88,7 @@ const MOCK_NOVELS: Novel[] = [
 export default function Novels() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [contentType, setContentType] = useState<'manhwa' | 'novels'>('novels');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,6 +103,8 @@ export default function Novels() {
     } else {
       document.documentElement.classList.add('dark');
     }
+    
+    setTimeout(() => setLoading(false), 800);
   }, []);
 
   const toggleTheme = () => {
@@ -116,6 +120,23 @@ export default function Novels() {
 
   const popularNovels = [...MOCK_NOVELS].sort((a, b) => b.rating - a.rating).slice(0, 5);
   const recentNovels = [...MOCK_NOVELS].slice(0, 8);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+          <div className="container flex h-16 items-center justify-between px-4">
+            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate('/')}>
+              MANHWA READER
+            </h1>
+          </div>
+        </header>
+        <main className="container px-4 py-8">
+          <SkeletonNovelList count={8} />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

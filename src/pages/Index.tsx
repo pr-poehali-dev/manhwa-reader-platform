@@ -7,6 +7,7 @@ import IndexFilters from '@/components/index/IndexFilters';
 import IndexSections from '@/components/index/IndexSections';
 import IndexFooter from '@/components/index/IndexFooter';
 import ManhwaCard from '@/components/index/ManhwaCard';
+import { SkeletonGrid } from '@/components/ui/skeleton';
 
 interface Manhwa {
   id: number;
@@ -181,8 +182,16 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Icon name="Loader2" size={48} className="animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <IndexHeader
+          theme={theme}
+          contentType={contentType}
+          onThemeToggle={toggleTheme}
+          onContentTypeChange={setContentType}
+        />
+        <main className="container px-4 py-8 pb-24 lg:pb-8">
+          <SkeletonGrid count={12} />
+        </main>
       </div>
     );
   }
