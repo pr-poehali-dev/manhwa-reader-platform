@@ -33,14 +33,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'OPTIONS':
         return {'statusCode': 200, 'headers': headers, 'body': ''}
     
-    # Проверка прав модератора
+    # Проверка прав администратора
     admin_key = event.get('headers', {}).get('X-Admin-Key')
+    user_id = event.get('headers', {}).get('X-User-Id')
+    
     if not admin_key or admin_key != os.environ.get('ADMIN_KEY', 'default_key'):
         return {
             'statusCode': 403,
             'headers': headers,
             'body': json.dumps({'error': 'Forbidden: Invalid admin key'})
         }
+    
+    # Дополнительная проверка роли в БД
+    if user_id:
+        try:
+            conn_check = get_db_connection()
+            cursor_check = conn_check.cursor(cursor_factory=RealDictCursor)
+            cursor_check.execute(f"SELECT role FROM user_roles WHERE user_id = '{user_id}'")
+            user_role = cursor_check.fetchone()
+            cursor_check.close()
+            conn_check.close()
+            
+            if not user_role or user_role['role'] != 'admin':
+                return {
+                    'statusCode': 403,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Forbidden: Admin role required'})
+                }
+        except:
+            pass
     
     try:
         body = json.loads(event.get('body', '{}'))
@@ -55,17 +76,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if command == 'parse_chapters':
             return parse_chapters_from_url(body, conn, headers)
         elif command == 'update_manhwa':
-            return update_manhwa_info(body, conn, headers)
+            return update_manhwa_info(body, conn, headers, user_id)
         elif command == 'monitor_site':
             return monitor_site_health(body, conn, headers)
         elif command == 'add_chapter':
-            return add_chapter_manually(body, conn, headers)
+            return add_chapter_manually(body, conn, headers, user_id)
         elif command == 'update_cover':
-            return update_cover_image(body, conn, headers)
+            return update_cover_image(body, conn, headers, user_id)
         elif command == 'sync_chapters':
             return sync_chapters_from_source(body, conn, headers)
         elif command == 'get_stats':
             return get_site_statistics(conn, headers)
+        elif command == 'get_submissions':
+            return get_pending_submissions(conn, headers)
+        elif command == 'approve_submission':
+            return approve_submission(body, conn, headers, user_id)
+        elif command == 'reject_submission':
+            return reject_submission(body, conn, headers, user_id)
+        elif command == 'get_translator_requests':
+            return get_translator_requests(conn, headers)
+        elif command == 'approve_translator':
+            return approve_translator_change(body, conn, headers, user_id)
+        elif command == 'reject_translator':
+            return reject_translator_change(body, conn, headers, user_id)
+        elif command == 'get_history':
+            return get_change_history(body, conn, headers)
         elif command == 'help':
             return get_bot_help(headers)
         else:
@@ -164,7 +199,7 @@ def get_bot_help(headers: Dict) -> Dict[str, Any]:
         }, ensure_ascii=False, indent=2)
     }
 
-def add_chapter_manually(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
+def add_chapter_manually(body: Dict, conn, headers: Dict, user_id: str = None) -> Dict[str, Any]:
     """Добавление главы вручную"""
     manhwa_id = body.get('manhwa_id')
     chapter_number = body.get('chapter_number')
@@ -223,6 +258,15 @@ def add_chapter_manually(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
         pages_added += 1
     
     conn.commit()
+    
+    # Логируем изменение
+    if user_id:
+        log_change(conn, 'chapter', chapter_id, 'created', user_id,
+                   f'Added chapter {chapter_number} with {pages_added} pages')
+    
+    # Отправляем уведомления подписчикам
+    send_chapter_notifications(conn, manhwa_id, chapter_id, chapter_number)
+    
     cursor.close()
     
     return {
@@ -236,7 +280,44 @@ def add_chapter_manually(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
         })
     }
 
-def update_manhwa_info(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
+def send_chapter_notifications(conn, manhwa_id: int, chapter_id: int, chapter_number: int):
+    """Отправка уведомлений о новой главе"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Получаем название манхвы
+    cursor.execute(f"SELECT title FROM manhwa WHERE id = {manhwa_id}")
+    manhwa = cursor.fetchone()
+    
+    if not manhwa:
+        cursor.close()
+        return
+    
+    # Получаем всех подписчиков
+    cursor.execute(f"""
+        SELECT user_id FROM notifications_subscriptions 
+        WHERE manhwa_id = {manhwa_id} AND notify_new_chapters = TRUE
+    """)
+    subscribers = cursor.fetchall()
+    
+    # Создаем уведомления
+    for sub in subscribers:
+        cursor.execute(
+            """INSERT INTO notifications 
+               (user_id, type, title, message, link, created_at)
+               VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)""",
+            (
+                sub['user_id'],
+                'new_chapter',
+                f'Новая глава {chapter_number}',
+                f'{manhwa["title"]} - Глава {chapter_number}',
+                f'/reader/{manhwa_id}?chapter={chapter_id}'
+            )
+        )
+    
+    conn.commit()
+    cursor.close()
+
+def update_manhwa_info(body: Dict, conn, headers: Dict, user_id: str = None) -> Dict[str, Any]:
     """Обновление информации о манхве"""
     manhwa_id = body.get('manhwa_id')
     
@@ -294,7 +375,7 @@ def update_manhwa_info(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
         })
     }
 
-def update_cover_image(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
+def update_cover_image(body: Dict, conn, headers: Dict, user_id: str = None) -> Dict[str, Any]:
     """Обновление обложки"""
     manhwa_id = body.get('manhwa_id')
     cover_url = body.get('cover_url')
@@ -470,4 +551,313 @@ def sync_chapters_from_source(body: Dict, conn, headers: Dict) -> Dict[str, Any]
             'message': 'Feature in development',
             'note': 'Используйте add_chapter для добавления новых глав'
         })
+    }
+
+def log_change(conn, entity_type: str, entity_id: int, action: str, user_id: str, changes: str):
+    """Логирование изменений в историю"""
+    cursor = conn.cursor()
+    cursor.execute(
+        """INSERT INTO change_history (entity_type, entity_id, action, user_id, changes)
+           VALUES (%s, %s, %s, %s, %s)""",
+        (entity_type, entity_id, action, user_id or 'system', changes)
+    )
+    conn.commit()
+    cursor.close()
+
+def check_duplicate_title(conn, title: str, alternative_titles: str = None) -> bool:
+    """Проверка на дубликаты названий"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Проверка основного названия
+    cursor.execute(
+        f"SELECT id, title FROM manhwa WHERE LOWER(title) = LOWER('{title}')"
+    )
+    if cursor.fetchone():
+        cursor.close()
+        return True
+    
+    # Проверка альтернативных названий
+    if alternative_titles:
+        alt_list = [t.strip() for t in alternative_titles.split(',')]
+        for alt in alt_list:
+            if alt:
+                cursor.execute(
+                    f"SELECT id FROM manhwa WHERE LOWER(title) = LOWER('{alt}')"
+                )
+                if cursor.fetchone():
+                    cursor.close()
+                    return True
+    
+    cursor.close()
+    return False
+
+def get_pending_submissions(conn, headers: Dict) -> Dict[str, Any]:
+    """Получение заявок на модерацию"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute("""
+        SELECT * FROM manhwa_submissions 
+        WHERE status = 'pending'
+        ORDER BY submitted_at DESC
+    """)
+    submissions = [dict(s) for s in cursor.fetchall()]
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({
+            'submissions': submissions,
+            'total': len(submissions)
+        }, default=str)
+    }
+
+def approve_submission(body: Dict, conn, headers: Dict, user_id: str) -> Dict[str, Any]:
+    """Одобрение заявки на добавление тайтла"""
+    submission_id = body.get('submission_id')
+    
+    if not submission_id:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'submission_id required'})
+        }
+    
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Получаем заявку
+    cursor.execute(f"SELECT * FROM manhwa_submissions WHERE id = {submission_id}")
+    submission = cursor.fetchone()
+    
+    if not submission:
+        return {
+            'statusCode': 404,
+            'headers': headers,
+            'body': json.dumps({'error': 'Submission not found'})
+        }
+    
+    if submission['status'] != 'pending':
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': f'Submission already {submission["status"]}'})
+        }
+    
+    # Проверка дубликатов
+    if check_duplicate_title(conn, submission['title'], submission.get('alternative_titles')):
+        # Автоматический отказ
+        cursor.execute(
+            """UPDATE manhwa_submissions 
+               SET status = 'rejected', 
+                   rejection_reason = 'Duplicate title detected',
+                   moderator_id = %s,
+                   moderated_at = CURRENT_TIMESTAMP
+               WHERE id = %s""",
+            (user_id, submission_id)
+        )
+        conn.commit()
+        cursor.close()
+        
+        return {
+            'statusCode': 409,
+            'headers': headers,
+            'body': json.dumps({
+                'error': 'Duplicate title detected',
+                'message': 'Заявка автоматически отклонена - тайтл уже существует'
+            })
+        }
+    
+    # Создаем манхву
+    cursor.execute(
+        """INSERT INTO manhwa (title, description, cover_url, status, created_at)
+           VALUES (%s, %s, %s, 'ongoing', CURRENT_TIMESTAMP)
+           RETURNING id""",
+        (submission['title'], submission.get('description'), submission.get('cover_url'))
+    )
+    manhwa_id = cursor.fetchone()['id']
+    
+    # Обновляем заявку
+    cursor.execute(
+        """UPDATE manhwa_submissions 
+           SET status = 'approved', 
+               manhwa_id = %s,
+               moderator_id = %s,
+               moderated_at = CURRENT_TIMESTAMP
+           WHERE id = %s""",
+        (manhwa_id, user_id, submission_id)
+    )
+    
+    conn.commit()
+    
+    # Логируем
+    log_change(conn, 'manhwa', manhwa_id, 'created', user_id, 
+               f'Approved submission #{submission_id}')
+    
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({
+            'message': 'Submission approved',
+            'manhwa_id': manhwa_id
+        })
+    }
+
+def reject_submission(body: Dict, conn, headers: Dict, user_id: str) -> Dict[str, Any]:
+    """Отклонение заявки"""
+    submission_id = body.get('submission_id')
+    reason = body.get('reason', 'Not specified')
+    
+    if not submission_id:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'submission_id required'})
+        }
+    
+    cursor = conn.cursor()
+    cursor.execute(
+        """UPDATE manhwa_submissions 
+           SET status = 'rejected',
+               rejection_reason = %s,
+               moderator_id = %s,
+               moderated_at = CURRENT_TIMESTAMP
+           WHERE id = %s AND status = 'pending'""",
+        (reason, user_id, submission_id)
+    )
+    conn.commit()
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({'message': 'Submission rejected'})
+    }
+
+def get_translator_requests(conn, headers: Dict) -> Dict[str, Any]:
+    """Получение запросов на смену переводчика"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute("""
+        SELECT tr.*, m.title as manhwa_title
+        FROM translator_change_requests tr
+        JOIN manhwa m ON tr.manhwa_id = m.id
+        WHERE tr.status = 'pending'
+        ORDER BY tr.submitted_at DESC
+    """)
+    requests = [dict(r) for r in cursor.fetchall()]
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({
+            'requests': requests,
+            'total': len(requests)
+        }, default=str)
+    }
+
+def approve_translator_change(body: Dict, conn, headers: Dict, user_id: str) -> Dict[str, Any]:
+    """Одобрение смены переводчика"""
+    request_id = body.get('request_id')
+    
+    if not request_id:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'request_id required'})
+        }
+    
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute(f"SELECT * FROM translator_change_requests WHERE id = {request_id}")
+    request = cursor.fetchone()
+    
+    if not request or request['status'] != 'pending':
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'error': 'Invalid request'})
+        }
+    
+    # Обновляем команду в manhwa (если есть связь)
+    # Здесь может быть логика обновления team_id
+    
+    cursor.execute(
+        """UPDATE translator_change_requests
+           SET status = 'approved',
+               moderator_id = %s,
+               moderated_at = CURRENT_TIMESTAMP
+           WHERE id = %s""",
+        (user_id, request_id)
+    )
+    conn.commit()
+    
+    log_change(conn, 'translator_request', request_id, 'approved', user_id,
+               f'Changed translator for manhwa {request["manhwa_id"]}')
+    
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({'message': 'Translator change approved'})
+    }
+
+def reject_translator_change(body: Dict, conn, headers: Dict, user_id: str) -> Dict[str, Any]:
+    """Отклонение смены переводчика"""
+    request_id = body.get('request_id')
+    reason = body.get('reason', 'Not specified')
+    
+    cursor = conn.cursor()
+    cursor.execute(
+        """UPDATE translator_change_requests
+           SET status = 'rejected',
+               moderator_id = %s,
+               moderated_at = CURRENT_TIMESTAMP
+           WHERE id = %s AND status = 'pending'""",
+        (user_id, request_id)
+    )
+    conn.commit()
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({'message': 'Translator change rejected'})
+    }
+
+def get_change_history(body: Dict, conn, headers: Dict) -> Dict[str, Any]:
+    """История изменений для конкретной сущности"""
+    entity_type = body.get('entity_type')
+    entity_id = body.get('entity_id')
+    limit = body.get('limit', 50)
+    
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    if entity_type and entity_id:
+        cursor.execute(
+            f"""SELECT * FROM change_history 
+                WHERE entity_type = '{entity_type}' AND entity_id = {entity_id}
+                ORDER BY created_at DESC 
+                LIMIT {limit}"""
+        )
+    else:
+        cursor.execute(
+            f"""SELECT * FROM change_history 
+                ORDER BY created_at DESC 
+                LIMIT {limit}"""
+        )
+    
+    history = [dict(h) for h in cursor.fetchall()]
+    cursor.close()
+    
+    return {
+        'statusCode': 200,
+        'headers': headers,
+        'body': json.dumps({
+            'history': history,
+            'total': len(history)
+        }, default=str)
     }
