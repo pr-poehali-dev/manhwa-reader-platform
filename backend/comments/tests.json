@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get comments for manhwa",
+      "method": "GET",
+      "path": "/?manhwa_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "comments": "array",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create new comment",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test_user_123"
+      },
+      "body": {
+        "manhwa_id": 1,
+        "text": "Отличная манхва!",
+        "rating": 9
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "comment": "object",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

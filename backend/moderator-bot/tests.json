@@ -1,0 +1,55 @@
+{
+  "tests": [
+    {
+      "name": "Get bot help",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Key": "default_key"
+      },
+      "body": {
+        "command": "help"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "bot": "string",
+        "commands": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get site statistics",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Key": "default_key"
+      },
+      "body": {
+        "command": "get_stats"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "total_manhwa": "number",
+        "total_chapters": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Monitor site health",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Admin-Key": "default_key"
+      },
+      "body": {
+        "command": "monitor_site"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "string",
+        "checks": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
